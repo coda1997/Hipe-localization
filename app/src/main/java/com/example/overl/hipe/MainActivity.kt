@@ -12,10 +12,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Mapbox.getInstance(this, "pk.eyJ1IjoiZGFkYWNoZW4iLCJhIjoiY2puem1xZXl4MDNtZDNybzlhdGs1OHpxbCJ9.niu0Pf8Q7WOBMiwaxr4yNQ");
+        Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
         setContentView(R.layout.activity_main)
         mapView = find(R.id.mapView)
         mapView?.onCreate(savedInstanceState)
+        initMapView()
+    }
+
+    private fun initMapView(){
+        if (mapView!=null){
+
+        }
     }
 
     //override some methods
