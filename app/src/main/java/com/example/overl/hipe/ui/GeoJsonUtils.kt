@@ -1,4 +1,4 @@
-package com.example.overl.hipe
+package com.example.overl.hipe.ui
 
 import android.os.AsyncTask
 import com.mapbox.mapboxsdk.geometry.LatLng

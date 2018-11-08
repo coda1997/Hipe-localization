@@ -1,35 +1,37 @@
-package com.example.overl.hipe
+package com.example.overl.hipe.ui
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.annotation.UiThread
-import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.Toast
-import com.mapbox.geojson.gson.GeoJsonAdapterFactory
-import com.mapbox.mapboxsdk.Mapbox
+import com.example.overl.hipe.R
 import com.mapbox.mapboxsdk.annotations.IconFactory
 import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
-import com.mapbox.mapboxsdk.camera.CameraPosition
-import com.mapbox.mapboxsdk.camera.CameraUpdate
-import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
-import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
-import com.mapbox.mapboxsdk.style.layers.Layer
 import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 
 class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener {
+
+    var currentMarker: Marker? = null
+
+
     override fun onMapLongClick(point: LatLng) {
-        mapboxMap?.addMarker(MarkerOptions()
-                .position(point)
-                .icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_red_uncollected))
-        )
+        if (currentMarker != null) {
+            currentMarker?.apply {
+                this.position=point
+                mapboxMap?.updateMarker(this)
+            }
+        }else{
+            mapboxMap?.addMarker(MarkerOptions()
+                    .position(point)
+                    .icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_red_uncollected))
+            )
+            currentMarker=mapboxMap?.markers?.last()
+
+        }
     }
 
 
@@ -56,11 +58,23 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener {
             collectBt.onClick {
                 //call methods to collect information
                 toast("collecting data now !")
+
+                marker.icon=IconFactory.getInstance(this@MainActivity).fromResource(R.mipmap.edit_maker_blue_collected)
+                mapboxMap?.updateMarker(marker)
+                mapboxMap?.deselectMarker(marker)
+                currentMarker=null
+
             }
             deleteBt.onClick {
                 //call methods to delete points
-                mapboxMap?.removeMarker(marker)
-
+//                mapboxMap?.removeMarker(marker)
+                this@MainActivity.alert("Delete this point ?", "Delete") {
+                    okButton {
+                        mapboxMap?.removeMarker(marker)
+                        currentMarker=null
+                    }
+                    cancelButton { }
+                }.show()
             }
             v
         }
