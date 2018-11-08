@@ -78,8 +78,9 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener {
             }
             v
         }
-
-
+        val utils = GeoJsonUtils(this@MainActivity, mapboxMap!!)
+        utils.filePath="shilintong/MapData1.txt"
+        utils.execute()
     }
 
 
