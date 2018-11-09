@@ -14,8 +14,7 @@ import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
-import com.mapbox.mapboxsdk.plugins.annotation.AnnotationManager
-import com.mapbox.mapboxsdk.plugins.annotation.LineManager
+
 import com.mapbox.mapboxsdk.style.layers.Layer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import org.jetbrains.anko.*
@@ -30,15 +29,15 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener {
     override fun onMapLongClick(point: LatLng) {
         if (currentMarker != null) {
             currentMarker?.apply {
-                this.position=point
+                this.position = point
                 mapboxMap?.updateMarker(this)
             }
-        }else{
+        } else {
             mapboxMap?.addMarker(MarkerOptions()
                     .position(point)
                     .icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_red_uncollected))
             )
-            currentMarker=mapboxMap?.markers?.last()
+            currentMarker = mapboxMap?.markers?.last()
 
         }
     }
@@ -68,10 +67,10 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener {
                 //call methods to collect information
                 toast("collecting data now !")
 
-                marker.icon=IconFactory.getInstance(this@MainActivity).fromResource(R.mipmap.edit_maker_blue_collected)
+                marker.icon = IconFactory.getInstance(this@MainActivity).fromResource(R.mipmap.edit_maker_blue_collected)
                 mapboxMap?.updateMarker(marker)
                 mapboxMap?.deselectMarker(marker)
-                currentMarker=null
+                currentMarker = null
 
             }
             deleteBt.onClick {
@@ -80,7 +79,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener {
                 this@MainActivity.alert("Delete this point ?", "Delete") {
                     okButton {
                         mapboxMap?.removeMarker(marker)
-                        currentMarker=null
+                        currentMarker = null
                     }
                     cancelButton { }
                 }.show()
@@ -89,10 +88,11 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener {
         }
 
 
-
         val utils = GeoJsonUtils(this@MainActivity, mapboxMap!!)
-        utils.filePath="shilintong/MapData1.txt"
+        utils.filePath = "shilintong/MapData1.txt"
         utils.execute()
+
+        mapboxMap?.addMarker(MarkerOptions().position(LatLng(30.46996398, 114.52596142)).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_red_uncollected)))
     }
 
 
