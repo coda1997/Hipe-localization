@@ -28,7 +28,7 @@ import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.nio.charset.Charset
 
-class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener ,WiFi_Scanner_.ScannerListener{
+class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scanner_.ScannerListener {
     override fun onScanFinished(count: Int) {
 
     }
@@ -40,8 +40,8 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener ,WiFi_Scan
 
     private var currentMarker: Marker? = null
     private var currentFloor = 1
-    private var currentDialog : AlertDialog?=null
-    lateinit var wifiScanner :WiFi_Scanner_
+    private var currentDialog: AlertDialog? = null
+    lateinit var wifiScanner: WiFi_Scanner_
 
     override fun onMapLongClick(point: LatLng) {
         if (currentMarker != null) {
@@ -69,7 +69,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener ,WiFi_Scan
         initMapView()
         wifiScanner = WiFi_Scanner_(getSystemService(Context.WIFI_SERVICE) as WifiManager).apply {
             setScannerListener(this@MainActivity)
-            setBuildingFloor("shilintong",currentFloor)
+            setBuildingFloor("shilintong", currentFloor)
         }
     }
 
@@ -77,14 +77,13 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener ,WiFi_Scan
         val toolBar = find<Toolbar>(R.id.toolbar)
         toolBar.title = "test 1"
         toolBar.inflateMenu(R.menu.main_menu)
-        toolBar.setOnMenuItemClickListener {
-            item: MenuItem? ->
-            when(item?.itemId){
+        toolBar.setOnMenuItemClickListener { item: MenuItem? ->
+            when (item?.itemId) {
                 R.id.menu_bt_1f -> changeFloorMap(1)
                 R.id.menu_bt_2f -> changeFloorMap(2)
-                R.id.menu_bt_3f ->changeFloorMap(3)
-                R.id.menu_bt_4f ->changeFloorMap(4)
-                R.id.menu_bt_5f ->changeFloorMap(5)
+                R.id.menu_bt_3f -> changeFloorMap(3)
+                R.id.menu_bt_4f -> changeFloorMap(4)
+                R.id.menu_bt_5f -> changeFloorMap(5)
             }
             true
         }
@@ -106,19 +105,19 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener ,WiFi_Scan
             collectBt.onClick {
                 //call methods to collect information
                 toast("collecting data now !")
-                currentDialog=this@MainActivity.alert(title="开始采集",message = "现在已采集0轮") {
-                    isCancelable=false
+                currentDialog = this@MainActivity.alert(title = "开始采集", message = "现在已采集0轮") {
+                    isCancelable = false
                     okButton {
-                        title="停止采集并保存"
-                        currentDialog=null
-                        if (wifiScanner.stop()){
+                        title = "停止采集并保存"
+                        currentDialog = null
+                        if (wifiScanner.stop()) {
                             this@MainActivity.toast("采集成功")
-                        }else{
+                        } else {
                             this@MainActivity.toast("采集失败")
                         }
                     }
                 }.show()
-                wifiScanner.startScan(marker.position.longitude,marker.position.latitude,60)
+                wifiScanner.startScan(marker.position.longitude, marker.position.latitude, 60)
                 marker.icon = IconFactory.getInstance(this@MainActivity).fromResource(R.mipmap.edit_maker_blue_collected)
                 mapboxMap?.updateMarker(marker)
                 mapboxMap?.deselectMarker(marker)
@@ -143,16 +142,22 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener ,WiFi_Scan
         utils.filePath = "shilintong/MapData1.txt"
         utils.execute()
     }
-    private fun changeFloorMap(floor:Int){
-        if (floor!=currentFloor){
+
+    private fun changeFloorMap(floor: Int) {
+        if (floor != currentFloor) {
             mapboxMap?.clear()
             val utils = GeoJsonUtils(this@MainActivity, mapboxMap!!)
             utils.filePath = "shilintong/MapData$floor.txt"
             utils.execute()
 
             //???? the method would override fileName if caller calls this with the same building name?
-            wifiScanner.setBuildingFloor("shilintong",currentFloor)
-            currentFloor=floor
+            doAsyncResult {
+                wifiScanner.setBuildingFloor("shilintong", currentFloor)
+                wifiScanner.localPoints
+
+            }.get().forEach {
+                mapboxMap?.addMarker(MarkerOptions().position(LatLng(it[1], it[0])).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_blue_collected))) }
+            currentFloor = floor
         }
     }
 
