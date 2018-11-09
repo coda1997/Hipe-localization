@@ -152,7 +152,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
 
             //???? the method would override fileName if caller calls this with the same building name?
             doAsyncResult {
-                wifiScanner.setBuildingFloor("shilintong", currentFloor)
+                wifiScanner.setBuildingFloor("shilintong", floor)
                 wifiScanner.localPoints
 
             }.get().forEach {
