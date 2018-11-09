@@ -11,10 +11,10 @@
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        mapbox:mapbox_cameraTargetLat="30.52"
-        mapbox:mapbox_cameraTargetLng="114.31"
+        mapbox:mapbox_cameraTargetLat="30.467322808406735"
+        mapbox:mapbox_cameraTargetLng="114.5314513400564"
         mapbox:mapbox_styleUrl="mapbox://styles/mapbox/streets-v10"
-        mapbox:mapbox_cameraZoom="11" />
+        mapbox:mapbox_cameraZoom="18" />
 
 
 

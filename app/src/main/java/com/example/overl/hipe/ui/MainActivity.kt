@@ -5,13 +5,22 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import com.example.overl.hipe.R
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
+import com.mapbox.geojson.GeoJson
+import com.mapbox.geojson.gson.GeoJsonAdapterFactory
 import com.mapbox.mapboxsdk.annotations.IconFactory
 import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
+import com.mapbox.mapboxsdk.plugins.annotation.AnnotationManager
+import com.mapbox.mapboxsdk.plugins.annotation.LineManager
+import com.mapbox.mapboxsdk.style.layers.Layer
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
+import java.nio.charset.Charset
 
 class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener {
 
@@ -78,6 +87,9 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener {
             }
             v
         }
+
+
+
         val utils = GeoJsonUtils(this@MainActivity, mapboxMap!!)
         utils.filePath="shilintong/MapData1.txt"
         utils.execute()
