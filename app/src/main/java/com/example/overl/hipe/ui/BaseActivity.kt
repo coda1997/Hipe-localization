@@ -2,6 +2,7 @@ package com.example.overl.hipe.ui
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.Window
 import com.example.overl.hipe.R
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.maps.MapView
@@ -18,6 +19,7 @@ open class BaseActivity: AppCompatActivity() {
         Mapbox.getInstance(this, "pk.eyJ1IjoiZGFkYWNoZW4iLCJhIjoiY2pvNnVuazVoMGtjajN2bXh0dDQ1YmFoZiJ9.wTJh2IPcUimFP1R7w_qWfA")
         setContentView(R.layout.activity_main_ui)
         mapView = find(R.id.mapView)
+
 
         mapView?.onCreate(savedInstanceState)
     }

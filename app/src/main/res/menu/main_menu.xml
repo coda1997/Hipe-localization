@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="1f" android:id="@+id/menu_bt_1f" />
+    <item android:title="2f" android:id="@+id/menu_bt_2f" />
+    <item android:title="3f" android:id="@+id/menu_bt_3f" />
+    <item android:title="4f" android:id="@+id/menu_bt_4f" />
+    <item android:title="5f" android:id="@+id/menu_bt_5f" />
+</menu>

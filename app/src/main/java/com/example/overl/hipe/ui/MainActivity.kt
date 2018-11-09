@@ -1,10 +1,17 @@
 package com.example.overl.hipe.ui
 
+import android.app.AlertDialog
+import android.content.Context
+import android.net.wifi.WifiManager
 import android.os.Bundle
+import android.os.PersistableBundle
+import android.support.v7.widget.Toolbar
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import com.example.overl.hipe.R
+import com.example.overl.hipe.background.WiFi_Scanner_
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.GeoJson
@@ -21,10 +28,20 @@ import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.nio.charset.Charset
 
-class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener {
+class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener ,WiFi_Scanner_.ScannerListener{
+    override fun onScanFinished(count: Int) {
 
-    var currentMarker: Marker? = null
+    }
 
+    override fun onScan(round: Int) {
+        val msg = "现在已采集${round}轮"
+        runOnUiThread { currentDialog?.setMessage(msg) }
+    }
+
+    private var currentMarker: Marker? = null
+    private var currentFloor = 1
+    private var currentDialog : AlertDialog?=null
+    lateinit var wifiScanner :WiFi_Scanner_
 
     override fun onMapLongClick(point: LatLng) {
         if (currentMarker != null) {
@@ -47,7 +64,30 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i("mapView info:", "is null?" + (mapView == null))
+        initMenu()
+
         initMapView()
+        wifiScanner = WiFi_Scanner_(getSystemService(Context.WIFI_SERVICE) as WifiManager).apply {
+            setScannerListener(this@MainActivity)
+            setBuildingFloor("shilintong",currentFloor)
+        }
+    }
+
+    private fun initMenu() {
+        val toolBar = find<Toolbar>(R.id.toolbar)
+        toolBar.title = "test 1"
+        toolBar.inflateMenu(R.menu.main_menu)
+        toolBar.setOnMenuItemClickListener {
+            item: MenuItem? ->
+            when(item?.itemId){
+                R.id.menu_bt_1f -> changeFloorMap(1)
+                R.id.menu_bt_2f -> changeFloorMap(2)
+                R.id.menu_bt_3f ->changeFloorMap(3)
+                R.id.menu_bt_4f ->changeFloorMap(4)
+                R.id.menu_bt_5f ->changeFloorMap(5)
+            }
+            true
+        }
     }
 
     private fun initMapView() {
@@ -66,7 +106,19 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener {
             collectBt.onClick {
                 //call methods to collect information
                 toast("collecting data now !")
-
+                currentDialog=this@MainActivity.alert(title="开始采集",message = "现在已采集0轮") {
+                    isCancelable=false
+                    okButton {
+                        title="停止采集并保存"
+                        currentDialog=null
+                        if (wifiScanner.stop()){
+                            this@MainActivity.toast("采集成功")
+                        }else{
+                            this@MainActivity.toast("采集失败")
+                        }
+                    }
+                }.show()
+                wifiScanner.startScan(marker.position.longitude,marker.position.latitude,60)
                 marker.icon = IconFactory.getInstance(this@MainActivity).fromResource(R.mipmap.edit_maker_blue_collected)
                 mapboxMap?.updateMarker(marker)
                 mapboxMap?.deselectMarker(marker)
@@ -87,13 +139,21 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener {
             v
         }
 
-
         val utils = GeoJsonUtils(this@MainActivity, mapboxMap!!)
         utils.filePath = "shilintong/MapData1.txt"
         utils.execute()
-
-        mapboxMap?.addMarker(MarkerOptions().position(LatLng(30.46996398, 114.52596142)).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_red_uncollected)))
     }
+    private fun changeFloorMap(floor:Int){
+        if (floor!=currentFloor){
+            mapboxMap?.clear()
+            val utils = GeoJsonUtils(this@MainActivity, mapboxMap!!)
+            utils.filePath = "shilintong/MapData$floor.txt"
+            utils.execute()
 
+            //???? the method would override fileName if caller calls this with the same building name?
+            wifiScanner.setBuildingFloor("shilintong",currentFloor)
+            currentFloor=floor
+        }
+    }
 
 }
