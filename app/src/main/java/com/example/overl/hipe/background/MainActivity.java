@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
             }
         }
-        wiFi_scanner_ = new WiFi_Scanner_((WifiManager)context.getSystemService(Context.WIFI_SERVICE));
+        wiFi_scanner_ = new WiFi_Scanner_(context);
         wiFi_scanner_.setScannerListener(this);
         wiFi_scanner_.setBuildingFloor("shilintong", 1);
 
@@ -106,8 +106,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onScanFinished(int count){
-        current_round = count;
+    public void onScanFinished(boolean successful){
         Message msg = handler.obtainMessage();
         msg.what = 0;
         handler.sendMessage(msg);

@@ -16,6 +16,14 @@ public class iBeaconClass {
         public String bluetoothAddress;
         public int txPower;
         public int rssi;
+        @Override
+        public boolean equals(Object ob){
+            if (this == ob)return true;
+            if (ob == null)return false;
+            if (getClass() != ob.getClass()) return false;
+            iBeacon ib = (iBeacon) ob;
+            return (ib.bluetoothAddress .equals(this.bluetoothAddress));
+        }
     }
     public static iBeacon fromScanData(BluetoothDevice device, int rssi, byte[] scanData) {
 

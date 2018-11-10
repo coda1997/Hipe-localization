@@ -29,7 +29,20 @@ import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.nio.charset.Charset
 
 class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scanner_.ScannerListener {
-    override fun onScanFinished(count: Int) {
+    override fun onScanFinished(successful : Boolean) {
+        //当输入为true时，采集成功
+        runOnUiThread {
+            var resultDialog: AlertDialog? = this@MainActivity.alert(title = "", message = "") {
+                isCancelable = false
+                okButton {
+                }
+            }.show()
+            if(successful)
+                resultDialog?.setMessage("采集成功")
+            else
+                resultDialog?.setMessage("采集失败")
+
+        }
 
     }
 
@@ -67,7 +80,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         initMenu()
 
         initMapView()
-        wifiScanner = WiFi_Scanner_(getSystemService(Context.WIFI_SERVICE) as WifiManager).apply {
+        wifiScanner = WiFi_Scanner_(applicationContext).apply {
             setScannerListener(this@MainActivity)
             setBuildingFloor("shilintong", currentFloor)
         }
@@ -110,11 +123,15 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
                     okButton {
                         title = "停止采集并保存"
                         currentDialog = null
+                        wifiScanner.stop()
+                        // stop改为没有返回值，扫描结果见onScanFinished
+                        /*
                         if (wifiScanner.stop()) {
                             this@MainActivity.toast("采集成功")
                         } else {
                             this@MainActivity.toast("采集失败")
                         }
+                        */
                     }
                 }.show()
                 wifiScanner.startScan(marker.position.longitude, marker.position.latitude, 60)
