@@ -107,6 +107,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
             this.mapboxMap = mapboxMap
             mapboxMap.addOnMapLongClickListener(this)
             loadLocalMapResource()
+            drawPoints(currentFloor)
         }
     }
 
@@ -146,6 +147,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
 //                mapboxMap?.removeMarker(marker)
                 this@MainActivity.alert("Delete this point ?", "Delete") {
                     okButton {
+                        wifiScanner.delete(marker.position.longitude, marker.position.latitude)
                         mapboxMap?.removeMarker(marker)
                         currentMarker = null
                     }
@@ -168,14 +170,17 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
             utils.execute()
 
             //???? the method would override fileName if caller calls this with the same building name?
-            doAsyncResult {
-                wifiScanner.setBuildingFloor("shilintong", floor)
-                wifiScanner.localPoints
-
-            }.get().forEach {
-                mapboxMap?.addMarker(MarkerOptions().position(LatLng(it[1], it[0])).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_blue_collected))) }
+            drawPoints(floor)
             currentFloor = floor
         }
+    }
+
+    private fun drawPoints(floor: Int){
+        doAsyncResult {
+            wifiScanner.setBuildingFloor("shilintong", floor)
+            wifiScanner.localPoints
+        }.get().forEach {
+            mapboxMap?.addMarker(MarkerOptions().position(LatLng(it[1], it[0])).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_blue_collected))) }
     }
 
 }

@@ -70,8 +70,8 @@ public class WiFi_Scanner_ {
     private String wifi_path = "AAAAA/Wi-Fi_Data/";
     private String ibeacon_path = "AAAAA/iBeacon_Data/";
 
-    private final double max_longitude_delta = 10;
-    private final double max_latitude_delta = 10;
+    private final double max_longitude_delta = 1;
+    private final double max_latitude_delta = 1;
 
     private double longitude, latitude;
 
@@ -208,8 +208,8 @@ public class WiFi_Scanner_ {
         int closest = -1;
         for (int i = 0; i < length; ++i) {
             Point pt = pts.get(i);
-            double d0 = 1000000 * (longitude - pt.longitude);
-            double d1 = 1000000 * (latitude - pt.latitude);
+            double d0 = 100000000 * Math.abs(longitude - pt.longitude);
+            double d1 = 100000000 * Math.abs(latitude - pt.latitude);
             if (d0 < max_longitude_delta && d1 < max_latitude_delta) {
                 double d2 = d0 * d0 + d1 * d1;
                 if (d2 < min_delta2) {
