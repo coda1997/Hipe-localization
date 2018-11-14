@@ -436,7 +436,6 @@ public class WiFi_Scanner_ {
                     long current_timestamp = System.currentTimeMillis();
                     long current_timestamp_nano = result.getTimestampNanos();
                     final iBeaconClass.iBeacon ibeacon = iBeaconClass.fromScanData(result.getDevice(), result.getRssi(), result.getScanRecord().getBytes());
-                    //Log.e("iBeacon", ibeacon.bluetoothAddress + ": " + ibeacon.name);
                     MyRSS item = new MyRSS(ibeacon.name, ibeacon.bluetoothAddress, ibeacon.rssi, last_bt_timestamp);
                     if (bt_list != null && !bt_list.contains(item) && current_timestamp_nano - last_bt_timestamp_nano < time_bt_threshold)          //上一批数据
                         bt_list.add(item);
