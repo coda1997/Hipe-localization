@@ -276,7 +276,7 @@ public class WiFi_Scanner_ {
                                 for (int i = 0; i < AP_n; i++) {
                                     ScanResult scanResult = scanResults.get(i);
                                     wifi_list.add(new MyRSS(scanResult.SSID, scanResult.BSSID, scanResult.level, scanResult.timestamp));
-                                    Log.e("scanResult", scanResult.BSSID + ": " + scanResult.level);
+                                    //Log.e("scanResult", scanResult.BSSID + ": " + scanResult.level);
                                 }
                                 Collections.sort(wifi_list);
                                 wifi_list_list.add(wifi_list);
@@ -436,6 +436,8 @@ public class WiFi_Scanner_ {
                     long current_timestamp = System.currentTimeMillis();
                     long current_timestamp_nano = result.getTimestampNanos();
                     final iBeaconClass.iBeacon ibeacon = iBeaconClass.fromScanData(result.getDevice(), result.getRssi(), result.getScanRecord().getBytes());
+                    if(ibeacon == null)
+                        return;
                     MyRSS item = new MyRSS(ibeacon.name, ibeacon.bluetoothAddress, ibeacon.rssi, last_bt_timestamp);
                     if (bt_list != null && !bt_list.contains(item) && current_timestamp_nano - last_bt_timestamp_nano < time_bt_threshold)          //上一批数据
                         bt_list.add(item);

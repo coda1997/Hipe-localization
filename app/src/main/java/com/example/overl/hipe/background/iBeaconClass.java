@@ -65,7 +65,7 @@ public class iBeaconClass {
 
         if (patternFound == false) {
             // This is not an iBeacon
-            //return null;
+            return null;
         }
 
 
