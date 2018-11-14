@@ -38,6 +38,7 @@ public class WiFi_Scanner_ {
             this.rss = rss;
             this.mac = mac;
             this.timestamp = timestamp;
+            this.name = "";
         }
 
         public MyRSS(String name, String mac, int rss, long timestamp) {
@@ -55,6 +56,16 @@ public class WiFi_Scanner_ {
             else if (this.rss < myRSS.rss)
                 return 1;
             else return 0;
+        }
+
+        @Override
+        public boolean equals(Object ob){
+            if(ob instanceof MyRSS){
+                if(ob == null)
+                    return false;
+                return ((MyRSS) ob).mac.equals(this.mac);
+            }
+            return false;
         }
     }
     private final int SIGNAL_TYPE_WIFI = 1;
@@ -264,7 +275,7 @@ public class WiFi_Scanner_ {
                                 Log.e("scanResult Size", ""+AP_n);
                                 for (int i = 0; i < AP_n; i++) {
                                     ScanResult scanResult = scanResults.get(i);
-                                    wifi_list.add(new MyRSS(scanResult.BSSID, scanResult.level, scanResult.timestamp));
+                                    wifi_list.add(new MyRSS(scanResult.SSID, scanResult.BSSID, scanResult.level, scanResult.timestamp));
                                     Log.e("scanResult", scanResult.BSSID + ": " + scanResult.level);
                                 }
                                 Collections.sort(wifi_list);
@@ -425,14 +436,16 @@ public class WiFi_Scanner_ {
                     long current_timestamp = System.currentTimeMillis();
                     long current_timestamp_nano = result.getTimestampNanos();
                     final iBeaconClass.iBeacon ibeacon = iBeaconClass.fromScanData(result.getDevice(), result.getRssi(), result.getScanRecord().getBytes());
-                    if (bt_list != null && !bt_list.contains(ibeacon) &&current_timestamp_nano - last_bt_timestamp_nano < time_bt_threshold)          //上一批数据
-                        bt_list.add(new MyRSS(ibeacon.name, ibeacon.bluetoothAddress, ibeacon.rssi, last_bt_timestamp));
+                    //Log.e("iBeacon", ibeacon.bluetoothAddress + ": " + ibeacon.name);
+                    MyRSS item = new MyRSS(ibeacon.name, ibeacon.bluetoothAddress, ibeacon.rssi, last_bt_timestamp);
+                    if (bt_list != null && !bt_list.contains(item) && current_timestamp_nano - last_bt_timestamp_nano < time_bt_threshold)          //上一批数据
+                        bt_list.add(item);
                     else {                                                                                               //新一批数据
                         bt_list = new ArrayList<>(100);
                         bt_list_list.add(bt_list);
                         time_list_b.add(current_timestamp);
                         last_bt_timestamp = current_timestamp;
-                        bt_list.add(new MyRSS(ibeacon.name, ibeacon.bluetoothAddress, ibeacon.rssi, last_bt_timestamp));
+                        bt_list.add(item);
                     }
                     last_bt_timestamp_nano = result.getTimestampNanos();
                 }
@@ -440,11 +453,12 @@ public class WiFi_Scanner_ {
 
     private void write_file(File file, List<List<MyRSS>> list_list, List<Long> time_list) throws IOException{
         List<String> macs = new LinkedList<>();
+        List<String> ssids = new LinkedList<>();
         HashMap<String, Integer> macs_detected = new HashMap<>(1024);
         int macs_detected_num = 0;
         int list_num = list_list.size();
         int current_size;
-        String current_mac;
+        String current_mac, current_ssid;
         List<MyRSS> current_list;
         MyRSS current_data;
         for (int i = 0; i < list_num; i++) {
@@ -452,8 +466,10 @@ public class WiFi_Scanner_ {
             current_size = current_list.size();
             for (int j = 0; j < current_size; j++) {
                 current_mac = current_list.get(j).mac;
+                current_ssid = current_list.get(j).name;
                 if (!macs_detected.containsKey(current_mac)) {
                     macs.add(current_mac);
+                    ssids.add(current_ssid);
                     macs_detected_num++;
                     macs_detected.put(current_mac, macs_detected_num - 1);
                 }
@@ -480,7 +496,17 @@ public class WiFi_Scanner_ {
         }
 
         DataWriter dw = new DataWriter(file, false);
-        Iterator iterator = macs.iterator();
+
+        Iterator iterator = ssids.iterator();
+
+        // write mac list
+        while (iterator.hasNext()) {
+            current_ssid = (String) iterator.next();
+            dw.write("," + current_ssid);
+        }
+        dw.write("\r\n");
+
+        iterator = macs.iterator();
 
         // write mac list
         while (iterator.hasNext()) {
