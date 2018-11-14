@@ -165,6 +165,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
     private fun changeFloorMap(floor: Int) {
         if (floor != currentFloor) {
             mapboxMap?.clear()
+            currentMarker=null
             val utils = GeoJsonUtils(this@MainActivity, mapboxMap!!)
             utils.filePath = "shilintong/MapData$floor.txt"
             utils.execute()
