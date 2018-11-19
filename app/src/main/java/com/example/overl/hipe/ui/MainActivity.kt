@@ -138,7 +138,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
                         */
                     }
                 }.show()
-                wifiScanner.startScan(marker.position.longitude, marker.position.latitude, 60)
+                wifiScanner.startScan(marker.position.longitude, marker.position.latitude, 64)
                 marker.icon = IconFactory.getInstance(this@MainActivity).fromResource(R.mipmap.edit_maker_blue_collected)
                 mapboxMap?.updateMarker(marker)
                 mapboxMap?.deselectMarker(marker)

@@ -73,8 +73,12 @@ public class WiFi_Localizer_WKNN {
             }
             for(int i = 0; i < round_count; ++i){
                 for(int j = 0; j < building_mac_count; ++j){
-                    if(rssis.get(i)[j] >= -99.9) {
+                    if(rssis.get(i)[j] >= -100) {
                         avg_rss[j] += rssis.get(i)[j];
+                        ++count[j];
+                    }
+                    else{
+                        avg_rss[j] += -100;
                         ++count[j];
                     }
                 }
@@ -107,6 +111,9 @@ public class WiFi_Localizer_WKNN {
                 }
                 else
                     weight[i] = 0.1;
+                std[i] = Math.sqrt(std[i]/(count[i] - 1));
+                weight[i] = 1 / (std[i] + 1);
+
                 sum += weight[i];
             }
             for(int i = 0; i < building_mac_count; ++i) {
@@ -148,7 +155,6 @@ public class WiFi_Localizer_WKNN {
 
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e("WiFi_Scanner", "Create Failed");
         }
     }
 
@@ -346,7 +352,9 @@ public class WiFi_Localizer_WKNN {
                 while(isRunning) {
                     try {
                         wifiManager.startScan();
-                        Thread.sleep(1000);
+                        Thread.sleep(3000);
+                        if(!isRunning)
+                            break;
                         ArrayList<ScanResult> scanResults = (ArrayList<ScanResult>) wifiManager.getScanResults();
                         for(int i = 0; i < scanResults.size(); ++i){
                             //("scan", scanResults.get(i).BSSID + "::" + scanResults.get(i).level);
@@ -386,7 +394,7 @@ public class WiFi_Localizer_WKNN {
 
                             Double sum = 0.;
                             for(int i = 0; i < max_K && i<closest_results.size(); ++i){
-                                weight[i] = 1/closest_results.get(i).distance * closest_results.get(i).distance;
+                                weight[i] = 1/(closest_results.get(i).distance * closest_results.get(i).distance);
                                 sum += weight[i];
                             }
                             for(int i = 0; i < max_K && i<closest_results.size(); ++i){
@@ -416,6 +424,10 @@ public class WiFi_Localizer_WKNN {
 
     public void stop(){
         isRunning = false;
+    }
+
+    public boolean isRunning(){
+        return isRunning;
     }
 
     public void setPosListener(PosListenner posListener){

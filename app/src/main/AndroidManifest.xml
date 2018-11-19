@@ -37,8 +37,8 @@
         <activity android:name=".background.MainActivity">
 
         </activity>
-        <activity android:name=".ui.LocActivity">
-
+        <activity android:name=".ui.LocActivity"
+            android:launchMode="singleInstance">
         </activity>
     </application>
 

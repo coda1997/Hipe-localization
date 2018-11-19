@@ -106,7 +106,11 @@ class LocActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Local
     }
 
     private fun toMainActivity(){
-        finish()
+        if(localizer.isRunning)
+            localizer.stop()
+        val intent = Intent()
+        intent.setClass(this, MainActivity::class.java)
+        startActivity(intent)
     }
 
     private fun drawPoints(floor: Int){
@@ -114,6 +118,12 @@ class LocActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Local
             localizer.getPointsFloor(floor)
         }.get().forEach {
             mapboxMap?.addMarker(MarkerOptions().position(LatLng(it[1], it[0])).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_blue_rp))) }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if(!localizer.isRunning)
+            localizer.start()
     }
 
 }

@@ -258,14 +258,19 @@ public class WiFi_Scanner_ {
                     public void run() {
                         long current_time;
                         int round = 0;
+                        boolean fisrt_scan = true;
                         wifi_list_list = new ArrayList<>(initial_list_num);
                         time_list_w = new LinkedList<>();
                         scannerListener.onScan(0);
                         while (wifi_scanning && ((current_time = System.currentTimeMillis()) - start_time) + 3010 < max_time_in_second * 1000) {
-                            ++round;
                             try {
                                 wifiManager.startScan();
                                 Thread.sleep(3000);
+                                if(fisrt_scan){
+                                    fisrt_scan = false;
+                                    continue;
+                                }
+                                ++round;
                                 ArrayList<ScanResult> scanResults = (ArrayList<ScanResult>) wifiManager.getScanResults();
                                 Log.e("Wi-Fi List", "" + scanResults.size());
 
