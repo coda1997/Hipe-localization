@@ -26,7 +26,8 @@
         android:roundIcon="@mipmap/hotdog"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".ui.MainActivity">
+        <activity android:name=".ui.MainActivity"
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -34,6 +35,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".background.MainActivity">
+
+        </activity>
+        <activity android:name=".ui.LocActivity">
 
         </activity>
     </application>

@@ -2,6 +2,7 @@ package com.example.overl.hipe.ui
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.os.PersistableBundle
@@ -76,6 +77,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
     private var mapboxMap: MapboxMap? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.setTitle("采集模式")
         Log.i("mapView info:", "is null?" + (mapView == null))
         initMenu()
 
@@ -92,6 +94,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         toolBar.inflateMenu(R.menu.main_menu)
         toolBar.setOnMenuItemClickListener { item: MenuItem? ->
             when (item?.itemId) {
+                R.id.menu_bt_loc-> toLocActivity()
                 R.id.menu_bt_1f -> changeFloorMap(1)
                 R.id.menu_bt_2f -> changeFloorMap(2)
                 R.id.menu_bt_3f -> changeFloorMap(3)
@@ -174,6 +177,12 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
             drawPoints(floor)
             currentFloor = floor
         }
+    }
+
+    private fun toLocActivity(){
+        val intent = Intent()
+        intent.setClass(this, LocActivity::class.java)
+        startActivity(intent)
     }
 
     private fun drawPoints(floor: Int){

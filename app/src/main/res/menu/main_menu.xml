@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="定位" android:id="@+id/menu_bt_loc" />
     <item android:title="1f" android:id="@+id/menu_bt_1f" />
     <item android:title="2f" android:id="@+id/menu_bt_2f" />
     <item android:title="3f" android:id="@+id/menu_bt_3f" />
