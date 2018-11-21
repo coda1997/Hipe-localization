@@ -33,15 +33,15 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
     override fun onScanFinished(successful : Boolean) {
         //当输入为true时，采集成功
         runOnUiThread {
-            var resultDialog: AlertDialog? = this@MainActivity.alert(title = "", message = "") {
+            val resultDialog: AlertDialog = this@MainActivity.alert(title = "", message = "") {
                 isCancelable = false
                 okButton {
                 }
             }.show()
             if(successful)
-                resultDialog?.setMessage("采集成功")
+                resultDialog.setMessage("采集成功")
             else
-                resultDialog?.setMessage("采集失败")
+                resultDialog.setMessage("采集失败")
 
         }
 
@@ -55,7 +55,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
     private var currentMarker: Marker? = null
     private var currentFloor = 1
     private var currentDialog: AlertDialog? = null
-    lateinit var wifiScanner: WiFi_Scanner_
+    private lateinit var wifiScanner: WiFi_Scanner_
 
     override fun onMapLongClick(point: LatLng) {
         if (currentMarker != null) {
@@ -172,8 +172,6 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
             val utils = GeoJsonUtils(this@MainActivity, mapboxMap!!)
             utils.filePath = "shilintong/MapData$floor.txt"
             utils.execute()
-
-            //???? the method would override fileName if caller calls this with the same building name?
             drawPoints(floor)
             currentFloor = floor
         }
