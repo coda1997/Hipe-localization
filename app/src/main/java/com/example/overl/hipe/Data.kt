@@ -1,6 +1,6 @@
 package com.example.overl.hipe
 
-data class Data(val code: Int, val msg: String, val data: RespondBody? = null)
+data class Data(val code: Int = 200, val msg: String = "OK", val data: RespondBody? = null)
 
 data class RespondBody(val points: List<Point>?=null, val building: Building? = null,val buildings:List<Building>?=null)
 
