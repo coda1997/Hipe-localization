@@ -10,6 +10,11 @@ import android.net.wifi.WifiManager;
 import android.os.Environment;
 import android.util.Log;
 
+import com.example.overl.hipe.BlueToothScanRes;
+import com.example.overl.hipe.OriginalRes;
+import com.example.overl.hipe.Point;
+import com.example.overl.hipe.WifiScanRes;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -86,7 +91,7 @@ public class WiFi_Scanner_ {
 
     private double longitude, latitude;
 
-    private ArrayList<Point> pts = new ArrayList<>();
+    private ArrayList<PointA> pts = new ArrayList<>();
 
     private boolean wifi_scanning = false, bt_scanning = false;
     private long max_time_in_second = 0;
@@ -95,6 +100,8 @@ public class WiFi_Scanner_ {
     private long time_bt_threshold = 500000000;
     private long last_bt_timestamp = -1;
     private long last_bt_timestamp_nano = -1;
+
+    private Point point_output;
 
     private ScannerListener scannerListener;
 
@@ -108,19 +115,19 @@ public class WiFi_Scanner_ {
     private LinkedList<Long> time_list_w = new LinkedList<>();
     private LinkedList<Long> time_list_b = new LinkedList<>();
 
-    private class Point {
+    private class PointA {
         double longitude, latitude;
         String name;
         String device;
 
-        public Point(double longitude, double latitude, String device) {
+        public PointA(double longitude, double latitude, String device) {
             this.latitude = latitude;
             this.longitude = longitude;
             name = df.format(latitude) + "_" + df.format(longitude);
             this.device = device;
         }
 
-        public Point(double longitude, double latitude, String name, String device) {
+        public PointA(double longitude, double latitude, String name, String device) {
             this.latitude = latitude;
             this.longitude = longitude;
             this.name = name;
@@ -129,7 +136,7 @@ public class WiFi_Scanner_ {
     }
 
     public interface ScannerListener {
-        void onScanFinished(boolean successful);
+        void onScanFinished(Point point);
 
         void onScan(int round);
     }
@@ -187,7 +194,7 @@ public class WiFi_Scanner_ {
                 Log.e(strs[0] + "_" + strs[1] + "_" + strs[2], "???");
                 String model = strs[2].substring(0, strs[2].length() - 4);
                 Log.e(model, model);
-                pts.add(new Point(current_longitude, current_latitude, strs[0] + "_" + strs[1], model));
+                pts.add(new PointA(current_longitude, current_latitude, strs[0] + "_" + strs[1], model));
             }
         }
         return pts.size();
@@ -207,6 +214,7 @@ public class WiFi_Scanner_ {
             max_time_in_second = timeInSecond;
             this.longitude = longitude;
             this.latitude = latitude;
+            point_output = new Point(System.currentTimeMillis(), latitude, longitude, floor, building_name, new ArrayList<>(), new ArrayList<>());
             start();
             return true;
         }
@@ -218,7 +226,7 @@ public class WiFi_Scanner_ {
         double min_delta2 = 10000000;
         int closest = -1;
         for (int i = 0; i < length; ++i) {
-            Point pt = pts.get(i);
+            PointA pt = pts.get(i);
             double d0 = 100000000 * Math.abs(longitude - pt.longitude);
             double d1 = 100000000 * Math.abs(latitude - pt.latitude);
             if (d0 < max_longitude_delta && d1 < max_latitude_delta) {
@@ -262,6 +270,7 @@ public class WiFi_Scanner_ {
                         wifi_list_list = new ArrayList<>(initial_list_num);
                         time_list_w = new LinkedList<>();
                         scannerListener.onScan(0);
+                        ArrayList<WifiScanRes> wifiScans = (ArrayList<WifiScanRes>) point_output.getWifiScanRes();
                         while (wifi_scanning && ((current_time = System.currentTimeMillis()) - start_time) + 3010 < max_time_in_second * 1000) {
                             try {
                                 wifiManager.startScan();
@@ -277,14 +286,18 @@ public class WiFi_Scanner_ {
                                 time_list_w.add(System.currentTimeMillis());
                                 int AP_n = scanResults.size();
                                 List<MyRSS> wifi_list = new ArrayList<>(AP_n);
+                                ArrayList<OriginalRes> ori_list = new ArrayList<>();
                                 Log.e("scanResult Size", ""+AP_n);
                                 for (int i = 0; i < AP_n; i++) {
                                     ScanResult scanResult = scanResults.get(i);
                                     wifi_list.add(new MyRSS(scanResult.SSID, scanResult.BSSID, scanResult.level, scanResult.timestamp));
                                     //Log.e("scanResult", scanResult.BSSID + ": " + scanResult.level);
+                                    ori_list.add(new OriginalRes(0, scanResult.SSID, scanResult.level));
                                 }
                                 Collections.sort(wifi_list);
                                 wifi_list_list.add(wifi_list);
+
+                                WifiScanRes currentWifiScanRes = new WifiScanRes(0, )
 
                                 scannerListener.onScan(round);
                             } catch (InterruptedException e) {
@@ -334,11 +347,11 @@ public class WiFi_Scanner_ {
                         boolean r0 = record(longitude, latitude, SIGNAL_TYPE_WIFI);
                         boolean r1 = record(longitude, latitude, SIGNAL_TYPE_IBEACON);
                         if(r0 && r1) {
-                            pts.add(new Point(longitude, latitude, android.os.Build.MODEL));
-                            scannerListener.onScanFinished(true);
+                            pts.add(new PointA(longitude, latitude, android.os.Build.MODEL));
+                            scannerListener.onScanFinished(point_output);
                         }
                         else
-                            scannerListener.onScanFinished(false);
+                            scannerListener.onScanFinished(null);
                         clear_temp_data();
                     }
                 });

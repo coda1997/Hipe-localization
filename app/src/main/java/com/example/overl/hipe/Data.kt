@@ -10,8 +10,8 @@ data class Floor(val name: String, val content: String)
 
 data class Point(val id: Long, val latitude: Double, val longitude: Double, val floor: Int, val buildingName: String="shilintong", val wifiScanRes: List<WifiScanRes> = emptyList(), val blueToothScanRes: List<BlueToothScanRes> = emptyList())
 
-class BlueToothScanRes // not used yet
+class BlueToothScanRes // not used ye   t
 
-data class WifiScanRes(val id:Int=0,val ctime:String, val ress:List<OriginalRes>,val pid:Int)
+    data class WifiScanRes(val id:Int=0,val ctime:String, val ress:List<OriginalRes>,val pid:Int)
 
 data class OriginalRes(val id:Int=0,val ssid:String, val level:Int,val sid:Int)
