@@ -14,6 +14,9 @@ import android.widget.Button
 import com.example.overl.hipe.Point
 import com.example.overl.hipe.R
 import com.example.overl.hipe.background.WiFi_Scanner_
+import com.example.overl.hipe.client.MsgBody1
+import com.example.overl.hipe.client.MsgBody2
+import com.google.gson.Gson
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.GeoJson
@@ -28,33 +31,41 @@ import com.mapbox.mapboxsdk.style.layers.Layer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
+import java.net.Socket
+import java.net.SocketAddress
 import java.nio.charset.Charset
 
 class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scanner_.ScannerListener {
     override fun onScanFinished(point: Point?) {
-        onScanFinished(true)
-    }
+        if (point!=null) {
+            runOnUiThread {
+                val resultDialog: AlertDialog = this@MainActivity.alert(title = "", message = "采集成功") {
+                    isCancelable = false
+                    okButton {
+                    }
+                }.show()
+            }
 
-    fun onScanFinished(successful : Boolean) {
-        //当输入为true时，采集成功
-        runOnUiThread {
-            val resultDialog: AlertDialog = this@MainActivity.alert(title = "", message = "") {
-                isCancelable = false
-                okButton {
+
+
+        }else{
+            runOnUiThread {
+                this@MainActivity.alert (message = "采集失败") {
+                    okButton {
+                    }
                 }
-            }.show()
-            if(successful)
-                resultDialog.setMessage("采集成功")
-            else
-                resultDialog.setMessage("采集失败")
-
+            }
         }
-
     }
+
 
     override fun onScan(round: Int) {
         val msg = "现在已采集${round}轮"
         runOnUiThread { currentDialog?.setMessage(msg) }
+
+        doAsync {
+            val gson = Gson().toJson(MsgBody1(21, 1, 1998)).toString()
+        }
     }
 
     private var currentMarker: Marker? = null
@@ -77,7 +88,8 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
 
         }
     }
-
+    lateinit var ip:String
+    lateinit var port:String
 
     private var mapboxMap: MapboxMap? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,6 +101,24 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
             setScannerListener(this@MainActivity)
             setBuildingFloor("shilintong", currentFloor)
         }
+        alert {
+            customView {
+                verticalLayout {
+                    val ipTx = editText(text = "127.0.0.1") {
+                        hint="IP address"
+                    }
+                    val portTx = editText(text = "8080") {
+                        hint= "port"
+                    }
+                    positiveButton("OK"){
+                        ip=ipTx.text.toString()
+                        port=portTx.text.toString()
+                        Log.d("ip and port","$ip and $port")
+                    }
+                }
+
+            }
+        }.show()
     }
 
     private fun initMenu() {
@@ -97,7 +127,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         toolBar.inflateMenu(R.menu.main_menu)
         toolBar.setOnMenuItemClickListener { item: MenuItem? ->
             when (item?.itemId) {
-                R.id.menu_bt_loc-> toLocActivity()
+                R.id.menu_bt_loc -> toLocActivity()
                 R.id.menu_bt_1f -> changeFloorMap(1)
                 R.id.menu_bt_2f -> changeFloorMap(2)
                 R.id.menu_bt_3f -> changeFloorMap(3)
@@ -164,7 +194,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
     private fun changeFloorMap(floor: Int) {
         if (floor != currentFloor) {
             mapboxMap?.clear()
-            currentMarker=null
+            currentMarker = null
             val utils = GeoJsonUtils(this@MainActivity, mapboxMap!!)
             utils.filePath = "shilintong/MapData$floor.txt"
             utils.execute()
@@ -173,16 +203,17 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         }
     }
 
-    private fun toLocActivity(){
+    private fun toLocActivity() {
         startActivity<LocActivity>()
     }
 
-    private fun drawPoints(floor: Int){
+    private fun drawPoints(floor: Int) {
         doAsyncResult {
             wifiScanner.setBuildingFloor("shilintong", floor)
             wifiScanner.localPoints
         }.get().forEach {
-            mapboxMap?.addMarker(MarkerOptions().position(LatLng(it[1], it[0])).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_blue_collected))) }
+            mapboxMap?.addMarker(MarkerOptions().position(LatLng(it[1], it[0])).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_blue_collected)))
+        }
     }
 
 }
