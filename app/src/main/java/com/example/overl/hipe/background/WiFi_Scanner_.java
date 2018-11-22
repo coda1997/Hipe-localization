@@ -77,6 +77,7 @@ public class WiFi_Scanner_ {
     private final int SIGNAL_TYPE_IBEACON = 2;
 
     static DecimalFormat df = new DecimalFormat("0.00000000");
+    final java.text.SimpleDateFormat sDateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
     private String building_name;
     private int floor;
@@ -114,6 +115,8 @@ public class WiFi_Scanner_ {
     private final int initial_list_num = 200;
     private LinkedList<Long> time_list_w = new LinkedList<>();
     private LinkedList<Long> time_list_b = new LinkedList<>();
+
+
 
     private class PointA {
         double longitude, latitude;
@@ -292,12 +295,13 @@ public class WiFi_Scanner_ {
                                     ScanResult scanResult = scanResults.get(i);
                                     wifi_list.add(new MyRSS(scanResult.SSID, scanResult.BSSID, scanResult.level, scanResult.timestamp));
                                     //Log.e("scanResult", scanResult.BSSID + ": " + scanResult.level);
-                                    ori_list.add(new OriginalRes(0, scanResult.SSID, scanResult.level));
+                                    ori_list.add(new OriginalRes(scanResult.BSSID, scanResult.level));
                                 }
                                 Collections.sort(wifi_list);
                                 wifi_list_list.add(wifi_list);
 
-                                WifiScanRes currentWifiScanRes = new WifiScanRes(0, )
+                                WifiScanRes currentWifiScanRes = new WifiScanRes(sDateFormat.format(current_time), ori_list);
+                                wifiScans.add(currentWifiScanRes);
 
                                 scannerListener.onScan(round);
                             } catch (InterruptedException e) {
@@ -457,14 +461,15 @@ public class WiFi_Scanner_ {
                     if(ibeacon == null)
                         return;
                     MyRSS item = new MyRSS(ibeacon.name, ibeacon.bluetoothAddress, ibeacon.rssi, last_bt_timestamp);
-                    if (bt_list != null && !bt_list.contains(item) && current_timestamp_nano - last_bt_timestamp_nano < time_bt_threshold)          //上一批数据
+                    if (bt_list != null && !bt_list.contains(item) && current_timestamp_nano - last_bt_timestamp_nano < time_bt_threshold) {          //上一批数据
                         bt_list.add(item);
-                    else {                                                                                               //新一批数据
+                    }else {                                                                                               //新一批数据
                         bt_list = new ArrayList<>(100);
                         bt_list_list.add(bt_list);
                         time_list_b.add(current_timestamp);
                         last_bt_timestamp = current_timestamp;
                         bt_list.add(item);
+
                     }
                     last_bt_timestamp_nano = result.getTimestampNanos();
                 }

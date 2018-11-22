@@ -127,6 +127,7 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 26 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="com.github.kittinunf.fuel:fuel:1.15.1@jar" level="project" />
     <orderEntry type="library" name="org.jetbrains.kotlinx:kotlinx-coroutines-core:0.23.4@jar" level="project" />
     <orderEntry type="library" scope="TEST" name="com.android.support.test:exposed-instrumentation-api-publish-0.5" level="project" />
     <orderEntry type="library" name="com.squareup.okio:okio:1.14.0@jar" level="project" />
@@ -156,6 +157,7 @@
     <orderEntry type="library" scope="TEST" name="javax.annotation:javax.annotation-api:1.2@jar" level="project" />
     <orderEntry type="library" name="org.jetbrains.anko:anko-support-v4-commons-0.10.7" level="project" />
     <orderEntry type="library" name="org.jetbrains.anko:commons-base-0.10.7" level="project" />
+    <orderEntry type="library" name="org.jetbrains.kotlin:kotlin-reflect:1.2.10@jar" level="project" />
     <orderEntry type="library" name="com.google.auto.value:auto-value-annotations:1.6@jar" level="project" />
     <orderEntry type="library" name="com.android.support:animated-vector-drawable-27.1.1" level="project" />
     <orderEntry type="library" name="com.mapbox.mapboxsdk:mapbox-android-gestures-0.3.0" level="project" />
@@ -192,7 +194,9 @@
     <orderEntry type="library" scope="TEST" name="com.android.support.test:runner-0.5" level="project" />
     <orderEntry type="library" name="org.jetbrains.anko:anko-appcompat-v7-0.10.7" level="project" />
     <orderEntry type="library" name="android.arch.lifecycle:livedata-core-1.1.0" level="project" />
+    <orderEntry type="library" name="com.github.kittinunf.result:result:1.6.0@jar" level="project" />
     <orderEntry type="library" name="org.jetbrains.kotlin:kotlin-stdlib:1.2.71@jar" level="project" />
+    <orderEntry type="library" name="com.beust:klaxon:3.0.1@jar" level="project" />
     <orderEntry type="library" name="org.jetbrains.anko:appcompatV7-base-0.10.7" level="project" />
     <orderEntry type="library" name="com.android.support:support-fragment-27.1.1" level="project" />
     <orderEntry type="library" name="com.android.support:support-media-compat-27.1.1" level="project" />

@@ -12,6 +12,6 @@ data class Point(val id: Long, val latitude: Double, val longitude: Double, val 
 
 class BlueToothScanRes // not used ye   t
 
-    data class WifiScanRes(val id:Int=0,val ctime:String, val ress:List<OriginalRes>,val pid:Int)
+    data class WifiScanRes(val ctime:String, val ress:List<OriginalRes>)
 
-data class OriginalRes(val id:Int=0,val ssid:String, val level:Int,val sid:Int)
+data class OriginalRes(val ssid:String, val level:Int)
