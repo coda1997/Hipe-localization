@@ -19,8 +19,6 @@ open class BaseActivity: AppCompatActivity() {
         Mapbox.getInstance(this, "pk.eyJ1IjoiZGFkYWNoZW4iLCJhIjoiY2pvNnVuazVoMGtjajN2bXh0dDQ1YmFoZiJ9.wTJh2IPcUimFP1R7w_qWfA")
         setContentView(R.layout.activity_main_ui)
         mapView = find(R.id.mapView)
-
-
         mapView?.onCreate(savedInstanceState)
     }
 

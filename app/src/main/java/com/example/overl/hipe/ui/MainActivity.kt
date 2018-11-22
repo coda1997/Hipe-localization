@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
+import com.example.overl.hipe.Point
 import com.example.overl.hipe.R
 import com.example.overl.hipe.background.WiFi_Scanner_
 import com.mapbox.geojson.Feature
@@ -30,7 +31,11 @@ import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.nio.charset.Charset
 
 class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scanner_.ScannerListener {
-    override fun onScanFinished(successful : Boolean) {
+    override fun onScanFinished(point: Point?) {
+        onScanFinished(true)
+    }
+
+    fun onScanFinished(successful : Boolean) {
         //当输入为true时，采集成功
         runOnUiThread {
             val resultDialog: AlertDialog = this@MainActivity.alert(title = "", message = "") {
@@ -77,10 +82,8 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
     private var mapboxMap: MapboxMap? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.setTitle("采集模式")
         Log.i("mapView info:", "is null?" + (mapView == null))
         initMenu()
-
         initMapView()
         wifiScanner = WiFi_Scanner_(applicationContext).apply {
             setScannerListener(this@MainActivity)
@@ -90,7 +93,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
 
     private fun initMenu() {
         val toolBar = find<Toolbar>(R.id.toolbar)
-        toolBar.title = "test 1"
+        toolBar.title = "采集模式"
         toolBar.inflateMenu(R.menu.main_menu)
         toolBar.setOnMenuItemClickListener { item: MenuItem? ->
             when (item?.itemId) {
@@ -128,14 +131,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
                         title = "停止采集并保存"
                         currentDialog = null
                         wifiScanner.stop()
-                        // stop改为没有返回值，扫描结果见onScanFinished
-                        /*
-                        if (wifiScanner.stop()) {
-                            this@MainActivity.toast("采集成功")
-                        } else {
-                            this@MainActivity.toast("采集失败")
-                        }
-                        */
+
                     }
                 }.show()
                 wifiScanner.startScan(marker.position.longitude, marker.position.latitude, 64)

@@ -46,7 +46,6 @@ class LocActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Local
     private var mapboxMap: MapboxMap? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.setTitle("定位模式")
         Log.i("mapView info:", "is null?" + (mapView == null))
         initMenu()
 
@@ -60,7 +59,7 @@ class LocActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Local
 
     private fun initMenu() {
         val toolBar = find<Toolbar>(R.id.toolbar)
-        toolBar.title = "test 1"
+        toolBar.title = "定位模式"
         toolBar.inflateMenu(R.menu.loc_menu)
         toolBar.setOnMenuItemClickListener { item: MenuItem? ->
             when (item?.itemId) {
