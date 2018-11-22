@@ -174,9 +174,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
     }
 
     private fun toLocActivity(){
-        val intent = Intent()
-        intent.setClass(this, LocActivity::class.java)
-        startActivity(intent)
+        startActivity<LocActivity>()
     }
 
     private fun drawPoints(floor: Int){

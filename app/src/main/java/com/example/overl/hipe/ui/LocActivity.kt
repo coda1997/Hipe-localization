@@ -107,9 +107,7 @@ class LocActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Local
     private fun toMainActivity(){
         if(localizer.isRunning)
             localizer.stop()
-        val intent = Intent()
-        intent.setClass(this, MainActivity::class.java)
-        startActivity(intent)
+        startActivity<MainActivity>()
     }
 
     private fun drawPoints(floor: Int){
