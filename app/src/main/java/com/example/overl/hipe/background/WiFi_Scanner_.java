@@ -93,6 +93,7 @@ public class WiFi_Scanner_ {
     private double longitude, latitude;
 
     private ArrayList<PointA> pts = new ArrayList<>();
+    private ArrayList<Long> pts_timestamp = new ArrayList<>();
 
     private boolean wifi_scanning = false, bt_scanning = false;
     private long max_time_in_second = 0;
@@ -180,6 +181,7 @@ public class WiFi_Scanner_ {
 
     private int loadPoints() {
         pts.clear();
+        pts_timestamp.clear();
         File wifi_dir = new File(Environment.getExternalStorageDirectory(), wifi_path);
         File building_dir = new File(wifi_dir, building_name);
         File floor_dir = new File(building_dir, "floor_" + floor);
@@ -187,17 +189,29 @@ public class WiFi_Scanner_ {
             File[] files = floor_dir.listFiles();
             int file_count = files.length;
             for (int i = 0; i < file_count; ++i) {
-                String fname = files[i].getName();
-                String[] strs = fname.split("_");
-                if (strs.length != 3)
-                    continue;
-                double current_longitude, current_latitude;
-                current_longitude = Double.valueOf(strs[0]);
-                current_latitude = Double.valueOf(strs[1]);
-                Log.e(strs[0] + "_" + strs[1] + "_" + strs[2], "???");
-                String model = strs[2].substring(0, strs[2].length() - 4);
-                Log.e(model, model);
-                pts.add(new PointA(current_longitude, current_latitude, strs[0] + "_" + strs[1], model));
+                try {
+                    String fname = files[i].getName();
+                    String[] strs = fname.split("_");
+                    if (strs.length != 3)
+                        continue;
+                    double current_longitude, current_latitude;
+                    current_longitude = Double.valueOf(strs[0]);
+                    current_latitude = Double.valueOf(strs[1]);
+                    Log.e(strs[0] + "_" + strs[1] + "_" + strs[2], "???");
+                    String model = strs[2].substring(0, strs[2].length() - 4);
+                    Log.e(model, model);
+                    DataReader dataReader = new DataReader(files[i]);
+                    dataReader.readLine();
+                    dataReader.readLine();
+                    String str = dataReader.readLine();
+                    String[] data_line = str.split(",");
+                    long point_timestamp = Long.valueOf(data_line[0]);
+                    pts_timestamp.add(point_timestamp);
+                    pts.add(new PointA(current_longitude, current_latitude, strs[0] + "_" + strs[1], model));
+                    dataReader.close();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
             }
         }
         return pts.size();
@@ -301,11 +315,18 @@ public class WiFi_Scanner_ {
         return false;
     }
 
-    public ArrayList<double[]> getLocalPoints() {
+    public ArrayList<Point> getLocalPoints() {
         int length = pts.size();
+        /*
         ArrayList<double[]> result = new ArrayList<>(length);
         for (int i = 0; i < length; ++i) {
             result.add(new double[]{pts.get(i).longitude, pts.get(i).latitude});
+        }
+        */
+        ArrayList<Point> result = new ArrayList<>(length);
+        for(int i = 0; i < length; ++i){
+            PointA pta = pts.get(i);
+            result.add(new Point(pts_timestamp.get(i), pta.latitude, pta.longitude, floor, building_name, new ArrayList<>(), new ArrayList<>()));
         }
         return result;
     }
@@ -573,7 +594,7 @@ public class WiFi_Scanner_ {
 
         Iterator iterator = ssids.iterator();
 
-        // write mac list
+        // write ssid list
         while (iterator.hasNext()) {
             current_ssid = (String) iterator.next();
             dw.write("," + current_ssid);
