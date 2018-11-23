@@ -33,7 +33,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         runOnUiThread { currentDialog?.setMessage(msg) }
         if (list != null) {
             doAsync {
-                val gson2 = "{\"Number\":${list.size},\"IPAddress\":{$macAddress}\"Type\":1,\"Address\":${list.map { "\"${it.ssid}\"" }},\"Signals\":${list.map { it.level }}}"
+                val gson2 = "{\"Number\":${list.size},\"IPAddress\":\"$macAddress\",\"Type\":1,\"Address\":${list.map { "\"${it.ssid}\"" }},\"Signals\":${list.map { it.level }}}"
                 val gson = Gson().toJson(MsgBody1(21, 2, gson2.length)).toString()
                 val msg = gson + gson2
                 Log.d("data info: ", msg)
