@@ -1,44 +1,51 @@
 package com.example.overl.hipe.ui
 
 import android.app.AlertDialog
-import android.content.Context
-import android.content.Intent
-import android.net.wifi.WifiManager
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
+import com.example.overl.hipe.OriginalRes
 import com.example.overl.hipe.Point
 import com.example.overl.hipe.R
 import com.example.overl.hipe.background.WiFi_Scanner_
+import com.example.overl.hipe.client.MacAddressUtils
 import com.example.overl.hipe.client.MsgBody1
-import com.example.overl.hipe.client.MsgBody2
 import com.example.overl.hipe.client.sendMsg
 import com.google.gson.Gson
-import com.mapbox.geojson.Feature
-import com.mapbox.geojson.FeatureCollection
-import com.mapbox.geojson.GeoJson
-import com.mapbox.geojson.gson.GeoJsonAdapterFactory
 import com.mapbox.mapboxsdk.annotations.IconFactory
 import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
 
-import com.mapbox.mapboxsdk.style.layers.Layer
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
-import java.net.Socket
-import java.net.SocketAddress
-import java.nio.charset.Charset
+import java.util.ArrayList
 
 class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scanner_.ScannerListener {
+    private var round: Int = 0
+    private lateinit var macAddress:String
+    override fun onScan(list: ArrayList<OriginalRes>?) {
+        val msg = "现在已采集${++round}轮"
+        runOnUiThread { currentDialog?.setMessage(msg) }
+        if (list != null) {
+            doAsync {
+                val gson2 = "{\"Number\":${list.size},\"IPAddress\":{$macAddress}\"Type\":1,\"Address\":${list.map { "\"${it.ssid}\"" }},\"Signals\":${list.map { it.level }}}"
+                val gson = Gson().toJson(MsgBody1(21, 2, gson2.length)).toString()
+                val msg = gson + gson2
+                Log.d("data info: ", msg)
+                sendMsg(msg, ip, port.toInt())
+            }
+        }
+
+    }
+
     override fun onScanFinished(point: Point?) {
-        if (point!=null) {
+        round = 0
+        if (point != null) {
             runOnUiThread {
                 val resultDialog: AlertDialog = this@MainActivity.alert(title = "", message = "采集成功") {
                     isCancelable = false
@@ -48,13 +55,14 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
             }
             doAsync {
                 val gson2 = "{\"x\":${point.latitude},\"y\":${point.longitude}}"
-                val gson = Gson().toJson(MsgBody1(21, 2, gson2.length)).toString()
-                val msg = gson+gson2
-                sendMsg(msg,ip,port.toInt())
+                val gson = Gson().toJson(MsgBody1(6, 2, gson2.length)).toString()
+                val msg = gson + gson2
+                Log.d("data info: ", msg)
+                sendMsg(msg, ip, port.toInt())
             }
-        }else{
+        } else {
             runOnUiThread {
-                this@MainActivity.alert (message = "采集失败") {
+                this@MainActivity.alert(message = "采集失败") {
                     okButton {
                     }
                 }
@@ -62,18 +70,6 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         }
     }
 
-
-    override fun onScan(round: Int) {
-        val msg = "现在已采集${round}轮"
-        runOnUiThread { currentDialog?.setMessage(msg) }
-
-        doAsync {
-            val gson = Gson().toJson(MsgBody1(21, 2, 1998)).toString()
-            val gson2 = "{IP}"
-            val msg = gson+gson2
-            sendMsg(msg,ip,port.toInt())
-        }
-    }
 
     private var currentMarker: Marker? = null
     private var currentFloor = 1
@@ -95,8 +91,9 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
 
         }
     }
-    lateinit var ip:String
-    lateinit var port:String
+
+    lateinit var ip: String
+    lateinit var port: String
 
     private var mapboxMap: MapboxMap? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,23 +101,25 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         Log.i("mapView info:", "is null?" + (mapView == null))
         initMenu()
         initMapView()
+        macAddress= MacAddressUtils.getMac(this)
         wifiScanner = WiFi_Scanner_(applicationContext).apply {
             setScannerListener(this@MainActivity)
             setBuildingFloor("shilintong", currentFloor)
         }
         alert {
+            isCancelable=false
             customView {
                 verticalLayout {
                     val ipTx = editText(text = "127.0.0.1") {
-                        hint="IP address"
+                        hint = "IP address"
                     }
                     val portTx = editText(text = "8080") {
-                        hint= "port"
+                        hint = "port"
                     }
-                    positiveButton("OK"){
-                        ip=ipTx.text.toString()
-                        port=portTx.text.toString()
-                        Log.d("ip and port","$ip and $port")
+                    positiveButton("OK") {
+                        ip = ipTx.text.toString()
+                        port = portTx.text.toString()
+                        Log.d("ip and port", "$ip and $port")
                     }
                 }
 

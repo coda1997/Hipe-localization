@@ -141,7 +141,7 @@ public class WiFi_Scanner_ {
     public interface ScannerListener {
         void onScanFinished(Point point);
 
-        void onScan(int round);
+        void onScan(ArrayList<OriginalRes> list);
     }
 
     public void setScannerListener(ScannerListener scannerListener) {
@@ -224,6 +224,42 @@ public class WiFi_Scanner_ {
         return false;
     }
 
+    public boolean savePointInLocalStorage(Point point){
+        double longitude = point.getLongitude();
+        double latitude = point.getLatitude();
+        int floor = point.getFloor();
+        String path = wifi_path;
+        File wifi_dir = new File(Environment.getExternalStorageDirectory(), path);
+        File building_dir = new File(wifi_dir, building_name);
+        File floor_dir = new File(building_dir, "floor_" + floor);
+        if (!floor_dir.exists())
+            if (!floor_dir.mkdirs())
+                return false;
+        if (!floor_dir.isDirectory())
+            return false;
+        String fname = df.format(longitude) + "_" + df.format(latitude) + "_" + android.os.Build.MODEL + ".csv";
+        String fname_temp = "TEMP_" + fname;
+        File file_temp = new File(floor_dir, fname_temp);
+        File file = new File(floor_dir, fname);
+
+        if (file.exists())
+            file.delete();
+        if (file_temp.exists())
+            file_temp.delete();
+
+        try {
+            if (!file_temp.createNewFile())
+                return false;
+            if (!file_temp.renameTo(file))
+                return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+
     public boolean delete(double longitude, double latitude) {
         int length = pts.size();
         double min_delta2 = 10000000;
@@ -272,7 +308,7 @@ public class WiFi_Scanner_ {
                         boolean fisrt_scan = true;
                         wifi_list_list = new ArrayList<>(initial_list_num);
                         time_list_w = new LinkedList<>();
-                        scannerListener.onScan(0);
+                        //scannerListener.onScan(0);
                         ArrayList<WifiScanRes> wifiScans = (ArrayList<WifiScanRes>) point_output.getWifiScanRes();
                         while (wifi_scanning && ((current_time = System.currentTimeMillis()) - start_time) + 3010 < max_time_in_second * 1000) {
                             try {
@@ -303,7 +339,7 @@ public class WiFi_Scanner_ {
                                 WifiScanRes currentWifiScanRes = new WifiScanRes(sDateFormat.format(current_time), ori_list);
                                 wifiScans.add(currentWifiScanRes);
 
-                                scannerListener.onScan(round);
+                                scannerListener.onScan(ori_list);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }

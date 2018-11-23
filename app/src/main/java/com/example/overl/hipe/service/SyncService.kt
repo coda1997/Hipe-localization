@@ -8,7 +8,7 @@ import retrofit2.http.*
 interface SyncService{
 
     @GET("/point/{time}")
-    fun getPoints(@Path("time") time:Long):RespondBody
+    fun getPoints(@Path("time") time:Long, @Query("floor") floor:Int):RespondBody
 
     @PATCH("/point/{time}")
     fun updatePoint(@Path("time") time:Long, point: Point):RespondBody
@@ -17,7 +17,7 @@ interface SyncService{
     fun deletePoint(@Path("time") time:Long):RespondBody
 
     @GET("/point")
-    fun getAllPoints():RespondBody
+    fun getAllPoints(@Query("floor") floor: Int):RespondBody
 
     @POST("/point")
     fun addPoint(point: Point):RespondBody
