@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
+import com.example.overl.hipe.OriginalRes
 import com.example.overl.hipe.Point
 import com.example.overl.hipe.R
 import com.example.overl.hipe.background.WiFi_Scanner_
@@ -29,13 +30,18 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.nio.charset.Charset
+import java.util.ArrayList
 
 class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scanner_.ScannerListener {
-    override fun onScanFinished(point: Point?) {
-        onScanFinished(true)
+    var round:Int = 0
+    override fun onScan(list: ArrayList<OriginalRes>?) {
+
+        val msg = "现在已采集${++round}轮"
+        runOnUiThread { currentDialog?.setMessage(msg) }
     }
 
-    fun onScanFinished(successful : Boolean) {
+    override fun onScanFinished(point: Point?) {
+        round=0
         //当输入为true时，采集成功
         runOnUiThread {
             val resultDialog: AlertDialog = this@MainActivity.alert(title = "", message = "") {
@@ -43,19 +49,16 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
                 okButton {
                 }
             }.show()
-            if(successful)
+            if(point!=null){
                 resultDialog.setMessage("采集成功")
-            else
+            }
+            else{
                 resultDialog.setMessage("采集失败")
+            }
 
         }
-
     }
 
-    override fun onScan(round: Int) {
-        val msg = "现在已采集${round}轮"
-        runOnUiThread { currentDialog?.setMessage(msg) }
-    }
 
     private var currentMarker: Marker? = null
     private var currentFloor = 1
