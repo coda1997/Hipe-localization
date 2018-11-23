@@ -16,6 +16,7 @@ import com.example.overl.hipe.R
 import com.example.overl.hipe.background.WiFi_Scanner_
 import com.example.overl.hipe.client.MsgBody1
 import com.example.overl.hipe.client.MsgBody2
+import com.example.overl.hipe.client.sendMsg
 import com.google.gson.Gson
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
@@ -45,9 +46,12 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
                     }
                 }.show()
             }
-
-
-
+            doAsync {
+                val gson2 = "{\"x\":${point.latitude},\"y\":${point.longitude}}"
+                val gson = Gson().toJson(MsgBody1(21, 2, gson2.length)).toString()
+                val msg = gson+gson2
+                sendMsg(msg,ip,port.toInt())
+            }
         }else{
             runOnUiThread {
                 this@MainActivity.alert (message = "采集失败") {
@@ -64,7 +68,10 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         runOnUiThread { currentDialog?.setMessage(msg) }
 
         doAsync {
-            val gson = Gson().toJson(MsgBody1(21, 1, 1998)).toString()
+            val gson = Gson().toJson(MsgBody1(21, 2, 1998)).toString()
+            val gson2 = "{IP}"
+            val msg = gson+gson2
+            sendMsg(msg,ip,port.toInt())
         }
     }
 
