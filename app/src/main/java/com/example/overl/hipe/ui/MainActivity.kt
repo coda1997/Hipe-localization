@@ -3,37 +3,35 @@ package com.example.overl.hipe.ui
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.net.wifi.WifiManager
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
-import com.example.overl.hipe.OriginalRes
-import com.example.overl.hipe.Point
-import com.example.overl.hipe.R
+import com.example.overl.hipe.*
 import com.example.overl.hipe.background.WiFi_Scanner_
-import com.mapbox.geojson.Feature
-import com.mapbox.geojson.FeatureCollection
-import com.mapbox.geojson.GeoJson
-import com.mapbox.geojson.gson.GeoJsonAdapterFactory
+import com.example.overl.hipe.service.SyncService
+import com.example.overl.hipe.service.getSyncService
+
 import com.mapbox.mapboxsdk.annotations.IconFactory
 import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 
-import com.mapbox.mapboxsdk.style.layers.Layer
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+
 import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
-import java.nio.charset.Charset
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.util.ArrayList
 
 class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scanner_.ScannerListener {
-    var round:Int = 0
+    var round: Int = 0
     override fun onScan(list: ArrayList<OriginalRes>?) {
 
         val msg = "现在已采集${++round}轮"
@@ -41,30 +39,50 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
     }
 
     override fun onScanFinished(point: Point?) {
-        round=0
+        round = 0
         //当输入为true时，采集成功
-        runOnUiThread {
-            val resultDialog: AlertDialog = this@MainActivity.alert(title = "", message = "") {
-                isCancelable = false
-                okButton {
-                }
-            }.show()
-            if(point!=null){
-                resultDialog.setMessage("采集成功")
-            }
-            else{
-                resultDialog.setMessage("采集失败")
-            }
-
+//        runOnUiThread {
+//            this@MainActivity.alert(title = "", message = if (point != null) "采集成功" else "采集失败") {
+//                isCancelable = false
+//                okButton {
+//                }
+//            }.show()
+//        }
+        if (point != null) {
+//            CompositeDisposable().add(
+//                    service.getPoints(timestamp, currentFloor).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { t1: Data?, t2: Throwable? ->
+//                        t1?.data?.points?.forEach { mapboxMap?.addMarker(MarkerOptions().position(LatLng(it.latitude, it.longitude)).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_green_upload))) }
+//                        t2?.printStackTrace()
+//                    }
+//            )
+            CompositeDisposable().add(service.addPoint(point)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe { body: Data?, ex: Throwable? ->
+                        if (body != null && body.code == 200) {
+                            toast("上传成功")
+                            getMarkerByPoint(point)?.apply {
+                                icon = IconFactory.getInstance(this@MainActivity).fromResource(R.mipmap.edit_maker_green_upload)
+                                mapboxMap?.updateMarker(this)
+                            }
+//                            val edit = getSharedPreferences("point", Context.MODE_WORLD_WRITEABLE).edit()
+//                            edit.putLong("point", point.id)
+//                            timestamp = point.id
+                        } else {
+                            toast("上传失败")
+                        }
+                        ex?.printStackTrace()
+                    })
         }
     }
 
-
+    private var timestamp: Long = 0L
+    private val pointsUploaded = mutableListOf<Point>()
     private var currentMarker: Marker? = null
     private var currentFloor = 1
     private var currentDialog: AlertDialog? = null
     private lateinit var wifiScanner: WiFi_Scanner_
-
+    private lateinit var service: SyncService
     override fun onMapLongClick(point: LatLng) {
         if (currentMarker != null) {
             currentMarker?.apply {
@@ -88,10 +106,13 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         Log.i("mapView info:", "is null?" + (mapView == null))
         initMenu()
         initMapView()
+        service = getSyncService()
         wifiScanner = WiFi_Scanner_(applicationContext).apply {
             setScannerListener(this@MainActivity)
             setBuildingFloor("shilintong", currentFloor)
         }
+//        val shareref = getSharedPreferences("point", Context.MODE_WORLD_READABLE)
+//        timestamp = shareref.getLong("point", 0)
     }
 
     private fun initMenu() {
@@ -100,7 +121,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         toolBar.inflateMenu(R.menu.main_menu)
         toolBar.setOnMenuItemClickListener { item: MenuItem? ->
             when (item?.itemId) {
-                R.id.menu_bt_loc-> toLocActivity()
+                R.id.menu_bt_loc -> toLocActivity()
                 R.id.menu_bt_1f -> changeFloorMap(1)
                 R.id.menu_bt_2f -> changeFloorMap(2)
                 R.id.menu_bt_3f -> changeFloorMap(3)
@@ -144,16 +165,28 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
                 currentMarker = null
 
             }
-            deleteBt.onClick {
+            deleteBt.onClick { _ ->
                 //call methods to delete points
 //                mapboxMap?.removeMarker(marker)
+
                 this@MainActivity.alert("Delete this point ?", "Delete") {
-                    okButton {
+                    cancelButton { }
+                    okButton { _ ->
                         wifiScanner.delete(marker.position.longitude, marker.position.latitude)
                         mapboxMap?.removeMarker(marker)
                         currentMarker = null
+//                        val point = pointsUploaded.filter { it.latitude == marker.position.latitude && it.longitude == marker.position.longitude&&it.floor==currentFloor }[]
+//                        service.deletePoint(point.id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { res, ex ->
+//                            if (res != null && res.code == 200) {
+//                                wifiScanner.delete(marker.position.longitude, marker.position.latitude)
+//                                mapboxMap?.removeMarker(marker)
+//                                currentMarker = null
+//                            } else {
+//                                toast("删除失败${ex.localizedMessage}")
+//                            }
+//                        }
+
                     }
-                    cancelButton { }
                 }.show()
             }
             v
@@ -167,7 +200,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
     private fun changeFloorMap(floor: Int) {
         if (floor != currentFloor) {
             mapboxMap?.clear()
-            currentMarker=null
+            currentMarker = null
             val utils = GeoJsonUtils(this@MainActivity, mapboxMap!!)
             utils.filePath = "shilintong/MapData$floor.txt"
             utils.execute()
@@ -176,18 +209,34 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         }
     }
 
-    private fun toLocActivity(){
+    private fun toLocActivity() {
         val intent = Intent()
         intent.setClass(this, LocActivity::class.java)
         startActivity(intent)
     }
 
-    private fun drawPoints(floor: Int){
+    private fun drawPoints(floor: Int) {
         doAsyncResult {
             wifiScanner.setBuildingFloor("shilintong", floor)
             wifiScanner.localPoints
         }.get().forEach {
-            mapboxMap?.addMarker(MarkerOptions().position(LatLng(it[1], it[0])).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_blue_collected))) }
+            pointsUploaded.add(Point(latitude = it[1], longitude = it[0], floor = floor, id = 0))
+            mapboxMap?.addMarker(MarkerOptions().position(LatLng(it[1], it[0])).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_green_upload)))
+        }
+        CompositeDisposable().add(
+                service.getPoints(timestamp, floor).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { t1: Data?, t2: Throwable? ->
+                    t1?.data?.points?.forEach { mapboxMap?.addMarker(MarkerOptions().position(LatLng(it.latitude, it.longitude)).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_green_upload))) }
+                    if (t2==null){
+                        toast("同步成功")
+                    }
+                    t2?.printStackTrace()
+                }
+        )
+
+    }
+
+    private fun getMarkerByPoint(point: Point): Marker? {
+        return mapboxMap?.markers?.filter { it.position.latitude == point.latitude && it.position.longitude == point.longitude }?.get(0)
     }
 
 }
