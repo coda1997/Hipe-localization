@@ -41,7 +41,6 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
     }
 
     override fun onScanFinished(point: Point?) {
-        onScanFinished(true)
         round=0
         //当输入为true时，采集成功
         runOnUiThread {
