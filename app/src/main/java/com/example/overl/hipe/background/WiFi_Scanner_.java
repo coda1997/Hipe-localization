@@ -250,6 +250,20 @@ public class WiFi_Scanner_ {
         try {
             if (!file_temp.createNewFile())
                 return false;
+            List<List<MyRSS>> list_list = new ArrayList<>();
+            ArrayList<WifiScanRes> scan_list_list = (ArrayList<WifiScanRes>) point.getWifiScanRes();
+            ArrayList<Long> time_list = new ArrayList<>();
+            long current_ttt = point.getId();
+            for(int i = 0; i < scan_list_list.size(); ++i){
+                ArrayList<OriginalRes> ori_list = (ArrayList<OriginalRes>) scan_list_list.get(i).getRess();
+                ArrayList<MyRSS> list = new ArrayList<>();
+                for(int j = 0; j < ori_list.size(); ++j)
+                    list.add(new MyRSS("", ori_list.get(j).getSsid(), ori_list.get(j).getLevel(), 0));
+                list_list.add(list);
+                time_list.add(new Long(current_ttt));
+                current_ttt += 3000;
+            }
+            write_file(file_temp, list_list, time_list);
             if (!file_temp.renameTo(file))
                 return false;
         } catch (IOException e) {
