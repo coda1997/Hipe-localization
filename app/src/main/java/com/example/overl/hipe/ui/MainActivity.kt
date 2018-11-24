@@ -11,8 +11,8 @@ import com.example.overl.hipe.OriginalRes
 import com.example.overl.hipe.Point
 import com.example.overl.hipe.R
 import com.example.overl.hipe.background.WiFi_Scanner_
+import com.example.overl.hipe.client.LocationTransUtils
 import com.example.overl.hipe.client.MacAddressUtils
-import com.example.overl.hipe.client.MsgBody1
 import com.example.overl.hipe.client.sendMsg
 import com.google.gson.Gson
 import com.mapbox.mapboxsdk.annotations.IconFactory
@@ -34,7 +34,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         if (list != null) {
             doAsync {
                 val gson2 = "{\"Number\":${list.size},\"IPAddress\":\"$macAddress\",\"Type\":1,\"Address\":${list.map { "\"${it.ssid}\"" }},\"Signals\":${list.map { it.level }}}"
-                val gson = Gson().toJson(MsgBody1(21, 2, gson2.length)).toString()
+                val gson = String.format("{\"Protocal\":%4d,\"Number\":%8d,\"Length\":%8d}",21,2,gson2.length)
                 val msg = gson + gson2
                 Log.d("data info: ", msg)
                 sendMsg(msg, ip, port.toInt())
@@ -54,8 +54,9 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
                 }.show()
             }
             doAsync {
-                val gson2 = "{\"x\":${point.latitude},\"y\":${point.longitude}}"
-                val gson = Gson().toJson(MsgBody1(6, 2, gson2.length)).toString()
+                val xy = LocationTransUtils.bigTransfer(doubleArrayOf(point.latitude,point.longitude))
+                val gson2 = "{\"x\":${xy[0]},\"y\":${xy[1]}}"
+                val gson = String.format("{\"Protocal\":%4d,\"Number\":%8d,\"Length\":%8d}",21,2,gson2.length)
                 val msg = gson + gson2
                 Log.d("data info: ", msg)
                 sendMsg(msg, ip, port.toInt())
@@ -170,7 +171,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
 
                     }
                 }.show()
-                wifiScanner.startScan(marker.position.longitude, marker.position.latitude, 10)
+                wifiScanner.startScan(marker.position.longitude, marker.position.latitude, 60)
                 marker.icon = IconFactory.getInstance(this@MainActivity).fromResource(R.mipmap.edit_maker_blue_collected)
                 mapboxMap?.updateMarker(marker)
                 mapboxMap?.deselectMarker(marker)

@@ -16,7 +16,5 @@ fun sendMsg(message:String,ip:String,prot:Int){
     socket.shutdownOutput()
     socket.close()
 }
-data class MsgBody1(val Protocal:Int,val Number:Int, val Length:Int)
-data class MsgBody2(val Number: Int,val IPAdress:String,val Type:Int,val Address:List<String>, val Signals:List<Int>)
-data class MsgBody3(val x:Double, val y:Double)
+
 
