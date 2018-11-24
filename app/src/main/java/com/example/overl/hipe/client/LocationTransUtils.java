@@ -78,7 +78,7 @@ public class LocationTransUtils {
         double cosTheta = Math.abs((mx[0] * nx[0] + mx[1] * nx[1]) / (lenMx * lenNx));
         double sinTheta = Math.sqrt(1 - cosTheta * cosTheta);
 
-        double x = 0.9 * cosTheta * (a - s2Old[0]) - 0.9 * sinTheta * (b - s2Old[1]) + s2New[0];
+        double x = cosTheta * (a - s2Old[0]) -  sinTheta * (b - s2Old[1]) + s2New[0];
 
         double y = -0.8 * sinTheta * (a - s2Old[0]) - 0.8 * cosTheta * (b - s2Old[1]) + s2New[1];
 
