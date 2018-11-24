@@ -56,7 +56,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
             doAsync {
                 val xy = LocationTransUtils.bigTransfer(doubleArrayOf(point.latitude,point.longitude))
                 val gson2 = "{\"x\":${xy[0]},\"y\":${xy[1]}}"
-                val gson = String.format("{\"Protocal\":%4d,\"Number\":%8d,\"Length\":%8d}",21,2,gson2.length)
+                val gson = String.format("{\"Protocal\":%4d,\"Number\":%8d,\"Length\":%8d}",6,2,gson2.length)
                 val msg = gson + gson2
                 Log.d("data info: ", msg)
                 sendMsg(msg, ip, port.toInt())

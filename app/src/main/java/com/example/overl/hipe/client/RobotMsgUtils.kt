@@ -7,14 +7,18 @@ import java.net.Socket
  * Created by overl on 2018/11/22.
  */
 
+var socket:Socket?=null
+
 fun sendMsg(message:String,ip:String,prot:Int){
-    val socket = Socket(ip,prot)
-    val output = socket.getOutputStream()
-    val writer = PrintWriter(output)
-    writer.write(message)
-    writer.flush()
-    socket.shutdownOutput()
-    socket.close()
+    if (socket!=null){
+            val output = socket!!.getOutputStream()
+            val writer = PrintWriter(output)
+            writer.write(message)
+            writer.flush()
+    }else{
+        socket = Socket(ip,prot)
+    }
+
 }
 
 
