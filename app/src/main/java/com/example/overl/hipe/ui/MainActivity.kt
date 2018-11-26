@@ -34,7 +34,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         if (list != null) {
             doAsync {
                 val gson2 = "{\"Number\":${list.size},\"IPAddress\":\"$macAddress\",\"Type\":1,\"Address\":${list.map { "\"${it.ssid}\"" }},\"Signals\":${list.map { it.level }}}"
-                val gson = String.format("{\"Protocal\":%4d,\"Number\":%8d,\"Length\":%8d}",21,2,gson2.length)
+                val gson = String.format("{\"Protocal\":%4d,\"Number\":%8d,\"Length\":%8d}",21,1,gson2.length)
                 val msg = gson + gson2
                 Log.d("data info: ", msg)
                 sendMsg(msg, ip, port.toInt())
@@ -104,10 +104,10 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
             isCancelable=false
             customView {
                 verticalLayout {
-                    val ipTx = editText(text = "127.0.0.1") {
+                    val ipTx = editText(text = "192.168.1.103") {
                         hint = "IP address"
                     }
-                    val portTx = editText(text = "8080") {
+                    val portTx = editText(text = "8000") {
                         hint = "port"
                     }
                     positiveButton("OK") {
