@@ -251,10 +251,7 @@ public class WiFi_Localizer_WKNN {
                         double current_longitude, current_latitude;
                         current_longitude = Double.valueOf(strs[0]);
                         current_latitude = Double.valueOf(strs[1]);
-                        Log.e(strs[0] + "_" + strs[1] + "_" + strs[2], "???");
-                        String model = strs[2].substring(0, strs[2].length() - 4);
-                        Log.e(model, model);
-                        Point current_point = new Point(current_longitude, current_latitude, current_floor, model);
+                        Point current_point = new Point(current_longitude, current_latitude, current_floor, "");
                         try{
                             DataReader dataReader = new DataReader(files[j]);
                             String ssids = dataReader.readLine();  //第一个为空
@@ -420,6 +417,7 @@ public class WiFi_Localizer_WKNN {
                 }
             }
         }).start();
+        Log.e("localizier", "");
     }
 
     public void stop(){

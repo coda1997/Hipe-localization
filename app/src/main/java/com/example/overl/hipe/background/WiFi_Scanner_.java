@@ -189,32 +189,17 @@ public class WiFi_Scanner_ {
             File[] files = floor_dir.listFiles();
             int file_count = files.length;
             for (int i = 0; i < file_count; ++i) {
-                try {
-                    String fname = files[i].getName();
-                    String[] strs = fname.split("_");
-                    if (strs.length != 3)
-                        continue;
-                    double current_longitude, current_latitude;
-                    current_longitude = Double.valueOf(strs[0]);
-                    current_latitude = Double.valueOf(strs[1]);
-                    Log.e(strs[0] + "_" + strs[1] + "_" + strs[2], "???");
-                    String model = strs[2].substring(0, strs[2].length() - 4);
-                    Log.e(model, model);
-                    DataReader dataReader = new DataReader(files[i]);
-                    dataReader.readLine();
-                    dataReader.readLine();
-                    String str = dataReader.readLine();
-                    String[] data_line = str.split(",");
-                    long point_timestamp = Long.valueOf(data_line[0]);
-                    pts_timestamp.add(point_timestamp);
-                    pts.add(new PointA(current_longitude, current_latitude, strs[0] + "_" + strs[1], model));
-                    dataReader.close();
-                }catch (IOException e){
-                    e.printStackTrace();
-                }catch (Exception e){
-                    Log.e("filename", files[i].getName());
-                    e.printStackTrace();
-                }
+                String fname = files[i].getName();
+                String[] strs = fname.split("_");
+                if (strs.length != 4)
+                    continue;
+                double current_longitude, current_latitude;
+                current_longitude = Double.valueOf(strs[0]);
+                current_latitude = Double.valueOf(strs[1]);
+                long point_timestamp = Long.valueOf(strs[2]);
+                String model = strs[3].substring(0, strs[3].length() - 4);
+                pts_timestamp.add(point_timestamp);
+                pts.add(new PointA(current_longitude, current_latitude, strs[0] + "_" + strs[1], model));
             }
         }
         return pts.size();
@@ -254,7 +239,7 @@ public class WiFi_Scanner_ {
                 return false;
         if (!floor_dir.isDirectory())
             return false;
-        String fname = df.format(longitude) + "_" + df.format(latitude) + "_" + android.os.Build.MODEL + ".csv";
+        String fname = df.format(longitude) + "_" + df.format(latitude) + "_" + point.getId() + "_" + android.os.Build.MODEL + ".csv";
         String fname_temp = "TEMP_" + fname;
         File file_temp = new File(floor_dir, fname_temp);
         File file = new File(floor_dir, fname);
@@ -475,7 +460,7 @@ public class WiFi_Scanner_ {
                 return false;
         if (!floor_dir.isDirectory())
             return false;
-        String fname = df.format(longitude) + "_" + df.format(latitude) + "_" + android.os.Build.MODEL + ".csv";
+        String fname = df.format(longitude) + "_" + df.format(latitude) + "_" + System.currentTimeMillis() + "_" + android.os.Build.MODEL + ".csv";
         String fname_temp = "TEMP_" + fname;
         File file_temp = new File(floor_dir, fname_temp);
         File file = new File(floor_dir, fname);
