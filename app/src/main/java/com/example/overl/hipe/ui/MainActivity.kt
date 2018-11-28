@@ -53,7 +53,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
                         t1?.data?.points?.forEach {
                             mapboxMap?.addMarker(MarkerOptions().position(LatLng(it.latitude, it.longitude)).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_green_upload)))
                             pointsUploaded.add(it)
-                            wifiScanner.savePointInLocalStorage(it)
+                            //wifiScanner.savePointInLocalStorage(it)
                         }
                         t2?.printStackTrace()
                     }

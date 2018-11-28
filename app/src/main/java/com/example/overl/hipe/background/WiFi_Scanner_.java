@@ -76,7 +76,7 @@ public class WiFi_Scanner_ {
     private final int SIGNAL_TYPE_WIFI = 1;
     private final int SIGNAL_TYPE_IBEACON = 2;
 
-    static DecimalFormat df = new DecimalFormat("0.00000000");
+    static DecimalFormat df = new DecimalFormat("0.000000");
     final java.text.SimpleDateFormat sDateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
     private String building_name;
@@ -87,8 +87,8 @@ public class WiFi_Scanner_ {
     private String wifi_path = "AAAAA/Wi-Fi_Data/";
     private String ibeacon_path = "AAAAA/iBeacon_Data/";
 
-    private final double max_longitude_delta = 1;
-    private final double max_latitude_delta = 1;
+    private final double max_longitude_delta = 10;
+    private final double max_latitude_delta = 10;
 
     private double longitude, latitude;
 
@@ -200,6 +200,7 @@ public class WiFi_Scanner_ {
                 String model = strs[3].substring(0, strs[3].length() - 4);
                 pts_timestamp.add(point_timestamp);
                 pts.add(new PointA(current_longitude, current_latitude, strs[0] + "_" + strs[1], model));
+                Log.e("1"+pts.size(), ""+pts_timestamp.size());
             }
         }
         return pts.size();
@@ -229,6 +230,7 @@ public class WiFi_Scanner_ {
     public boolean savePointInLocalStorage(Point point){
         double longitude = point.getLongitude();
         double latitude = point.getLatitude();
+        Log.e("down point", df.format(longitude) + " ::: " + df.format(latitude) + "_" + point.getId());
         int floor = point.getFloor();
         String path = wifi_path;
         File wifi_dir = new File(Environment.getExternalStorageDirectory(), path);
@@ -239,6 +241,9 @@ public class WiFi_Scanner_ {
                 return false;
         if (!floor_dir.isDirectory())
             return false;
+        pts.add(new PointA(longitude, latitude, android.os.Build.MODEL));
+        pts_timestamp.add(point.getId());
+        Log.e("2"+pts.size(), ""+pts_timestamp.size());
         String fname = df.format(longitude) + "_" + df.format(latitude) + "_" + point.getId() + "_" + android.os.Build.MODEL + ".csv";
         String fname_temp = "TEMP_" + fname;
         File file_temp = new File(floor_dir, fname_temp);
@@ -278,12 +283,13 @@ public class WiFi_Scanner_ {
 
     public boolean delete(double longitude, double latitude) {
         int length = pts.size();
-        double min_delta2 = 10000000;
+        double min_delta2 = 1000000;
         int closest = -1;
         for (int i = 0; i < length; ++i) {
             PointA pt = pts.get(i);
-            double d0 = 100000000 * Math.abs(longitude - pt.longitude);
-            double d1 = 100000000 * Math.abs(latitude - pt.latitude);
+
+            double d0 = 1000000 * Math.abs(longitude - pt.longitude);
+            double d1 = 1000000 * Math.abs(latitude - pt.latitude);
             if (d0 < max_longitude_delta && d1 < max_latitude_delta) {
                 double d2 = d0 * d0 + d1 * d1;
                 if (d2 < min_delta2) {
@@ -294,10 +300,11 @@ public class WiFi_Scanner_ {
         }
         Log.e("CLO", "" + closest);
         if (closest >= 0) {
-            Log.e("CLOSEST", pts.get(closest).longitude + "_" + pts.get(closest).latitude);
-            delete_file(pts.get(closest).longitude, pts.get(closest).latitude, SIGNAL_TYPE_WIFI);
-            delete_file(pts.get(closest).longitude, pts.get(closest).latitude, SIGNAL_TYPE_IBEACON);
+            Log.e("CLOSEST", df.format(pts.get(closest).longitude) + "_" + df.format(pts.get(closest).latitude) + "_" + pts_timestamp.get(closest));
+            delete_file(pts.get(closest).longitude, pts.get(closest).latitude, pts_timestamp.get(closest), SIGNAL_TYPE_WIFI);
+            delete_file(pts.get(closest).longitude, pts.get(closest).latitude, pts_timestamp.get(closest), SIGNAL_TYPE_IBEACON);
             pts.remove(closest);
+            pts_timestamp.remove(closest);
             return true;
         }
         return false;
@@ -407,11 +414,18 @@ public class WiFi_Scanner_ {
                         }catch (Exception e){
                             e.printStackTrace();
                         }
-                        boolean r0 = record(longitude, latitude, SIGNAL_TYPE_WIFI);
-                        boolean r1 = record(longitude, latitude, SIGNAL_TYPE_IBEACON);
-                        if(r0 && r1) {
+                        boolean r0 = record(longitude, latitude, point_output.getId(), SIGNAL_TYPE_WIFI);
+                        //boolean r1 = record(longitude, latitude, point_output.getId(), SIGNAL_TYPE_IBEACON);
+                        if(r0) {
                             pts.add(new PointA(longitude, latitude, android.os.Build.MODEL));
+                            pts_timestamp.add(point_output.getId());
+                            //Log.e("record"+pts.size(), ""+pts_timestamp.size());
+                            Log.e("point_out", df.format(point_output.getLongitude()) + "_" + df.format(point_output.getLatitude()) + "_" + point_output.getId());
                             scannerListener.onScanFinished(point_output);
+                            for(int i = 0; i < pts_timestamp.size(); i++){
+                                //Log.e(""+pts.size(), ""+pts_timestamp.size());
+                                //Log.e("point "+i, df.format(pts.get(i).longitude) + "_" + df.format(pts.get(i).latitude) +"_" + pts_timestamp.get(i));
+                            }
                         }
                         else
                             scannerListener.onScanFinished(null);
@@ -434,7 +448,7 @@ public class WiFi_Scanner_ {
         bt_scanning = false;
     }
 
-    private boolean record(double longitude, double latitude, int signal_type) {
+    private boolean record(double longitude, double latitude, long timestamp, int signal_type) {
         List<List<MyRSS>> list_list;
         LinkedList<Long> time_list;
         String path;
@@ -460,7 +474,7 @@ public class WiFi_Scanner_ {
                 return false;
         if (!floor_dir.isDirectory())
             return false;
-        String fname = df.format(longitude) + "_" + df.format(latitude) + "_" + System.currentTimeMillis() + "_" + android.os.Build.MODEL + ".csv";
+        String fname = df.format(longitude) + "_" + df.format(latitude) + "_" + timestamp + "_" + android.os.Build.MODEL + ".csv";
         String fname_temp = "TEMP_" + fname;
         File file_temp = new File(floor_dir, fname_temp);
         File file = new File(floor_dir, fname);
@@ -483,7 +497,7 @@ public class WiFi_Scanner_ {
         return true;
     }
 
-    private boolean delete_file(double longitude, double latitude, int signal_type) {
+    private boolean delete_file(double longitude, double latitude, long timestamp, int signal_type) {
         String path;
         if(signal_type == SIGNAL_TYPE_WIFI){
             path = wifi_path;
@@ -503,8 +517,10 @@ public class WiFi_Scanner_ {
         if (!floor_dir.isDirectory())
             return false;
 
-        String fname = df.format(longitude) + "_" + df.format(latitude) + "_" + android.os.Build.MODEL + ".csv";
+        String fname = df.format(longitude) + "_" + df.format(latitude) + "_" + timestamp +"_" + android.os.Build.MODEL + ".csv";
+
         File file = new File(floor_dir, fname);
+        Log.e("delete file", file.getAbsolutePath());
         return (file.exists() && file.delete());
     }
 
