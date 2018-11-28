@@ -31,7 +31,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.ArrayList
 
 class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scanner_.ScannerListener {
-    var round: Int = 0
+    private var round: Int = 0
     override fun onScan(list: ArrayList<OriginalRes>?) {
 
         val msg = "现在已采集${++round}轮"
@@ -39,6 +39,12 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
     }
 
     override fun onScanFinished(point: Point?) {
+        if(round==0){
+            runOnUiThread {
+                toast("采集取消")
+            }
+            return
+        }
         round = 0
 
         if (point != null) {
