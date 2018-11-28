@@ -211,6 +211,9 @@ public class WiFi_Scanner_ {
                     dataReader.close();
                 }catch (IOException e){
                     e.printStackTrace();
+                }catch (Exception e){
+                    Log.e("filename", files[i].getName());
+                    e.printStackTrace();
                 }
             }
         }
