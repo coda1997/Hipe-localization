@@ -53,7 +53,6 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
                         t1?.data?.points?.forEach {
                             mapboxMap?.addMarker(MarkerOptions().position(LatLng(it.latitude, it.longitude)).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_green_upload)))
                             pointsUploaded.add(it)
-                            //wifiScanner.savePointInLocalStorage(it)
                         }
                         t2?.printStackTrace()
                     }
@@ -174,9 +173,9 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
                 this@MainActivity.alert("Delete this point ?", "Delete") {
                     cancelButton { }
                     okButton { _ ->
-                        wifiScanner.delete(marker.position.longitude, marker.position.latitude)
-                        mapboxMap?.removeMarker(marker)
-                        currentMarker = null
+//                        wifiScanner.delete(marker.position.longitude, marker.position.latitude)
+//                        mapboxMap?.removeMarker(marker)
+//                        currentMarker = null
                         val points = pointsUploaded.filter { it.latitude == marker.position.latitude && it.longitude == marker.position.longitude&&it.floor==currentFloor }
                         if (points.isNotEmpty()){
                             service.deletePoint(points[0].id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { res, ex ->
