@@ -220,7 +220,7 @@ public class WiFi_Scanner_ {
             max_time_in_second = timeInSecond;
             this.longitude = longitude;
             this.latitude = latitude;
-            point_output = new Point(System.currentTimeMillis(), latitude, longitude, floor, building_name, new ArrayList<>(), new ArrayList<>());
+            point_output = new Point(System.currentTimeMillis(), latitude, longitude, floor, building_name, new ArrayList<>(), new ArrayList<>(), android.os.Build.MODEL);
             start();
             return true;
         }
@@ -230,6 +230,7 @@ public class WiFi_Scanner_ {
     public boolean savePointInLocalStorage(Point point){
         double longitude = point.getLongitude();
         double latitude = point.getLatitude();
+        String device_model = point.getDeviceModel();
         Log.e("down point", df.format(longitude) + " ::: " + df.format(latitude) + "_" + point.getId());
         int floor = point.getFloor();
         String path = wifi_path;
@@ -241,7 +242,7 @@ public class WiFi_Scanner_ {
                 return false;
         if (!floor_dir.isDirectory())
             return false;
-        pts.add(new PointA(longitude, latitude, android.os.Build.MODEL));
+        pts.add(new PointA(longitude, latitude, device_model));
         pts_timestamp.add(point.getId());
         Log.e("2"+pts.size(), ""+pts_timestamp.size());
         String fname = df.format(longitude) + "_" + df.format(latitude) + "_" + point.getId() + "_" + android.os.Build.MODEL + ".csv";
@@ -321,7 +322,7 @@ public class WiFi_Scanner_ {
         ArrayList<Point> result = new ArrayList<>(length);
         for(int i = 0; i < length; ++i){
             PointA pta = pts.get(i);
-            result.add(new Point(pts_timestamp.get(i), pta.latitude, pta.longitude, floor, building_name, new ArrayList<>(), new ArrayList<>()));
+            result.add(new Point(pts_timestamp.get(i), pta.latitude, pta.longitude, floor, building_name, new ArrayList<>(), new ArrayList<>(), pta.device));
         }
         return result;
     }
