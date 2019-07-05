@@ -1,9 +1,14 @@
 package com.example.overl.hipe.ui
 
+import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.MenuItem
@@ -105,15 +110,31 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i("mapView info:", "is null?" + (mapView == null))
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP){
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
+            }
+        }
+
+
         initMenu()
         initMapView()
         service = getSyncService()
         wifiScanner = WiFi_Scanner_(applicationContext).apply {
-//            setScannerListener(this@MainActivity)
-//            setBuildingFloor("shilintong", currentFloor)
+            setScannerListener(this@MainActivity)
+            setBuildingFloor("kanceyuan", currentFloor)
         }
 //        val shareref = getSharedPreferences("point", Context.MODE_WORLD_READABLE)
 //        timestamp = shareref.getLong("point", 0)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1){
+
+        }else{
+            Log.d("permission","failed")
+        }
     }
 
     private fun initMenu() {
@@ -138,7 +159,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
             this.mapboxMap = mapboxMap
             mapboxMap.addOnMapLongClickListener(this)
             loadLocalMapResource()
-         //   drawPoints(currentFloor)
+            drawPoints(currentFloor)
         }
     }
 
@@ -216,9 +237,10 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
     }
 
     private fun toLocActivity() {
-        val intent = Intent()
-        intent.setClass(this, LocActivity::class.java)
-        startActivity(intent)
+        toast("暂未开放")
+//        val intent = Intent()
+//        intent.setClass(this, LocActivity::class.java)
+//        startActivity(intent)
     }
 
     private fun drawPoints(floor: Int) {

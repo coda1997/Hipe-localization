@@ -56,7 +56,7 @@ class GeoJsonUtils(private val context: Context, val mapboxMap: MapboxMap) : Asy
 
         //draw boundary
         drawBoundary(info.getJSONObject(3))
-
+        drawBoundary(info.getJSONObject(7))
 //          drawDoor(info.getJSONObject(2))
         return listOf()
 
