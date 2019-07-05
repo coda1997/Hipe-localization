@@ -77,7 +77,10 @@ class GeoJsonUtils(private val context: Context, val mapboxMap: MapboxMap) : Asy
                     val coordds = coords.getJSONArray(0).getJSONArray(0)
                     (0 until coordds.length())
                             .map { coordds.getJSONArray(it) }
-                            .mapTo(ress) { LatLng(it.getDouble(1), it.getDouble(0)) }
+                            .mapTo(ress) {
+                                val loc = GPSUtil.gcj02_To_Gps84(it.getDouble(1), it.getDouble(0))
+                                LatLng(loc[0], loc[1])
+                            }
                 }
             }
             context.runOnUiThread {
@@ -99,7 +102,9 @@ class GeoJsonUtils(private val context: Context, val mapboxMap: MapboxMap) : Asy
                     val coords = doorGeomerty.getJSONArray("coordinates").getJSONArray(0)
                     for (j in 0 until coords.length()) {
                         val coord = coords.getJSONArray(j)
-                        val latLog = LatLng(coord.getDouble(1), coord.getDouble(0))
+                        val loc = GPSUtil.gcj02_To_Gps84(coord.getDouble(1), coord.getDouble(0))
+
+                        val latLog = LatLng(loc[0], loc[1])
                         if (points.find { it.isSamePoint(latLog) } == null) {
                             points.add(latLog)
                         }
@@ -125,7 +130,9 @@ class GeoJsonUtils(private val context: Context, val mapboxMap: MapboxMap) : Asy
                     val coords = doorGeomerty.getJSONArray("coordinates").getJSONArray(0)
                     for (j in 0 until coords.length()) {
                         val coord = coords.getJSONArray(j)
-                        val latLog = LatLng(coord.getDouble(1), coord.getDouble(0))
+                        val loc = GPSUtil.gcj02_To_Gps84(coord.getDouble(1), coord.getDouble(0))
+
+                        val latLog = LatLng(loc[0], loc[1])
                             points.add(latLog)
 
                     }
