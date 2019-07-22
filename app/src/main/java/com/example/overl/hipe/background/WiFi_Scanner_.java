@@ -245,7 +245,7 @@ public class WiFi_Scanner_ {
         pts.add(new PointA(longitude, latitude, device_model));
         pts_timestamp.add(point.getId());
         Log.e("2"+pts.size(), ""+pts_timestamp.size());
-        String fname = df.format(longitude) + "_" + df.format(latitude) + "_" + point.getId() + "_" + android.os.Build.MODEL + ".csv";
+        String fname = df.format(longitude) + "_" + df.format(latitude) + "_" + point.getId() + "_" + point.getDeviceModel() + ".csv";
         String fname_temp = "TEMP_" + fname;
         File file_temp = new File(floor_dir, fname_temp);
         File file = new File(floor_dir, fname);
