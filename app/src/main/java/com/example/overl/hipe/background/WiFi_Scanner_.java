@@ -220,7 +220,7 @@ public class WiFi_Scanner_ {
             max_time_in_second = timeInSecond;
             this.longitude = longitude;
             this.latitude = latitude;
-            point_output = new Point(System.currentTimeMillis(), latitude, longitude, floor, building_name, new ArrayList<>(), new ArrayList<>(), android.os.Build.MODEL);
+            point_output = new Point(System.currentTimeMillis(), latitude, longitude, floor, building_name, new ArrayList<WifiScanRes>(), new ArrayList<BlueToothScanRes>(), android.os.Build.MODEL);
             start();
             return true;
         }
@@ -322,7 +322,7 @@ public class WiFi_Scanner_ {
         ArrayList<Point> result = new ArrayList<>(length);
         for(int i = 0; i < length; ++i){
             PointA pta = pts.get(i);
-            result.add(new Point(pts_timestamp.get(i), pta.latitude, pta.longitude, floor, building_name, new ArrayList<>(), new ArrayList<>(), pta.device));
+            result.add(new Point(pts_timestamp.get(i), pta.latitude, pta.longitude, floor, building_name, new ArrayList<WifiScanRes>(), new ArrayList<BlueToothScanRes>(), pta.device));
         }
         return result;
     }
@@ -331,7 +331,7 @@ public class WiFi_Scanner_ {
         synchronized ("0") {
             if (wifiManager != null) {
 
-                Thread wifi_thread = new Thread(new Runnable() {
+                final Thread wifi_thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
                         long current_time;
@@ -386,7 +386,7 @@ public class WiFi_Scanner_ {
                     }
                 });
 
-                Thread ibeacon_thread = new Thread(new Runnable() {
+                final Thread ibeacon_thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
                         long current_time;
