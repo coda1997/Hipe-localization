@@ -247,6 +247,16 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         )
 
     }
+    private var baseMarker:Marker? = null
+
+    private fun coordWithFootMounted(){
+        //add a button to do the coord
+        //here is a core function
+        val coord = FootMountedUtils.getFootMountedSetoff()
+        //add it
+        //float[3]
+        //mapboxMap?.addMarker(MarkerOptions().position())
+    }
 
     private fun getMarkerByPoint(point: Point): Marker? {
         return mapboxMap?.markers?.filter { it.position.latitude == point.latitude && it.position.longitude == point.longitude }?.get(0)
