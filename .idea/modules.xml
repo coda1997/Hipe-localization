@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://D:/Android/github/1/Hipe-localization/Hipe.iml" filepath="D:/Android/github/1/Hipe-localization/Hipe.iml" />
       <module fileurl="file://$PROJECT_DIR$/Hipe-localization.iml" filepath="$PROJECT_DIR$/Hipe-localization.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
