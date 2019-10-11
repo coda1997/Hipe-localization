@@ -270,7 +270,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
     *
     * */
     private lateinit var pointCoord:LatLng
-
+    private var preMarker:Marker?=null
     private fun fetchCoord(){
         var lat = pointCoord.latitude
         var lng = pointCoord.longitude
@@ -281,9 +281,11 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         tv_lng.text="lng:${lng}"
         pointCoord.latitude=lat
         pointCoord.longitude=lng
+        preMarker?.apply {
+            mapboxMap?.removeMarker(this)
+        }
         runOnUiThread {
-
-            mapboxMap?.addMarker(MarkerOptions().position(pointCoord).icon(IconFactory.getInstance(this).fromResource(R.drawable.ic_person_pin_circle_green_500_24dp)))
+            preMarker=mapboxMap?.addMarker(MarkerOptions().position(pointCoord).icon(IconFactory.getInstance(this).fromResource(R.drawable.ic_person_pin_circle_green_500_24dp)))
         }
 
     }
