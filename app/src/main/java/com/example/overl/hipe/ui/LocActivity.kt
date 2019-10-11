@@ -47,7 +47,6 @@ class LocActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Local
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i("mapView info:", "is null?" + (mapView == null))
-        initMenu()
 
         initMapView()
         localizer = WiFi_Localizer_WKNN(applicationContext).apply {
@@ -57,17 +56,7 @@ class LocActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Local
         }
     }
 
-    private fun initMenu() {
-        val toolBar = find<Toolbar>(R.id.toolbar)
-        toolBar.title = "定位模式"
-        toolBar.inflateMenu(R.menu.loc_menu)
-        toolBar.setOnMenuItemClickListener { item: MenuItem? ->
-            when (item?.itemId) {
-                R.id.menu_bt_collect -> toMainActivity()
-            }
-            true
-        }
-    }
+
 
     private fun initMapView() {
         mapView?.getMapAsync { mapboxMap ->
