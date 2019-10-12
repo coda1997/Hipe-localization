@@ -216,21 +216,21 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
 //        }
 
         val utils = GeoJsonUtils(this@MainActivity, mapboxMap!!)
-        utils.filePath = "shilintong/MapData1.txt"
+        utils.filePath = "shilintong/MapLib1.txt"
         utils.execute()
     }
 
-    private fun changeFloorMap(floor: Int) {
-        if (floor != currentFloor) {
-            //mapboxMap?.clear()
-            currentMarker = null
-            val utils = GeoJsonUtils(this@MainActivity, mapboxMap!!)
-            utils.filePath = "shilintong/MapData$floor.txt"
-            utils.execute()
-            drawPoints(floor)
-            currentFloor = floor
-        }
-    }
+//    private fun changeFloorMap(floor: Int) {
+//        if (floor != currentFloor) {
+//            //mapboxMap?.clear()
+//            currentMarker = null
+//            val utils = GeoJsonUtils(this@MainActivity, mapboxMap!!)
+//            utils.filePath = "shilintong/MapData$floor.txt"
+//            utils.execute()
+//            drawPoints(floor)
+//            currentFloor = floor
+//        }
+//    }
 
     private fun toLocActivity() {
         val intent = Intent()

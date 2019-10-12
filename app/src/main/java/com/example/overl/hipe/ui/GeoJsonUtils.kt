@@ -45,14 +45,14 @@ class GeoJsonUtils(private val context: Context, val mapboxMap: MapboxMap) : Asy
         val json = JSONObject(stringBuffer.toString())
         val info = json.getJSONArray("info")
         Log.i("geojson type", "total num is ${info.length()}")
-        (0 until info.length())
-                .map { info.getJSONObject(it) }
-                .map { it.getString("type") }
-                .forEach { Log.i("geojson type", "type name is $it") }
+//        (0 until info.length())
+//                .map { info.getJSONObject(it) }
+//                .map { it.getString("type") }
+//                .forEach { Log.i("geojson type", "type name is $it") }
 
 
         //draw multi polygons
-        drawPolygon(info.getJSONObject(1))
+//        drawPolygon(info.getJSONObject(1))
 
         //draw boundary
         drawBoundary(info.getJSONObject(3))
@@ -126,13 +126,13 @@ class GeoJsonUtils(private val context: Context, val mapboxMap: MapboxMap) : Asy
                     for (j in 0 until coords.length()) {
                         val coord = coords.getJSONArray(j)
                         val latLog = LatLng(coord.getDouble(1), coord.getDouble(0))
-                            points.add(latLog)
+                        points.add(latLog)
 
                     }
                 }
             }
 
-            context.runOnUiThread { mapboxMap.addPolygon(PolygonOptions().addAll(points.toList()).fillColor(Color.DKGRAY)) }
+            context.runOnUiThread { mapboxMap.addPolygon(PolygonOptions().addAll(points.toList()).fillColor(Color.TRANSPARENT)) }
         }
 
     }
