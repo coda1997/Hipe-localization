@@ -274,9 +274,9 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
     private fun fetchCoord(){
         var lat = pointCoord.latitude
         var lng = pointCoord.longitude
-        val setoff = getCoordWithFootMounted()
-        lat +=0.00004
-        lng +=0.00004
+        val offset = MyActivity.coords
+        lat +=offset[0]*0.00000899
+        lng +=offset[1]*0.00001141
         tv_lat.text="lat:${lat}"
         tv_lng.text="lng:${lng}"
         pointCoord.latitude=lat

@@ -401,6 +401,11 @@ public class BaseBleMapbox extends AppCompatActivity {
                     ble2.y = ble1.y;
                     ble2.z = ble1.z;
 
+                    coords[0] = ble1.x;
+                    coords[1] = ble1.y;
+                    coords[2] = ble1.z;
+
+
                     // 结果写入文件
                     long timeMill = System.currentTimeMillis();
                     double timeMill_double = System.currentTimeMillis();
@@ -418,6 +423,7 @@ public class BaseBleMapbox extends AppCompatActivity {
                     byte[] arrayOfByte2 = arrayString.getBytes();
                     try {
                         fos_imu.get(kk).write(arrayOfByte2);
+
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -496,4 +502,5 @@ public class BaseBleMapbox extends AppCompatActivity {
         return;
 
     }
+    public static float[] coords = new float[3];
 }
