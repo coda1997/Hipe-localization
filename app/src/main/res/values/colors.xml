@@ -149,6 +149,9 @@
     <color name="darkblue">#00008b</color> <!-- 暗蓝色 -->
     <color name="navy">#000080</color> <!-- 海军色 -->
     <color name="black">#000000</color> <!-- 黑色 -->
+    <color name="golden">#DAA520</color>
+    <color name="driver_line">#ededed</color>
+    <color name="hint">#999999</color>
     ---------------------
     作者：Fade龖龘
     来源：CSDN
