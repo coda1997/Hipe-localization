@@ -195,16 +195,16 @@ public class MyActivity extends BaseBleMapbox implements View.OnClickListener{
     * */
     private void initView() {
 
-        tv1 = (TextView) findViewById(R.id.tv_res1);
-        tv2 = (TextView) findViewById(R.id.tv_res2);
+        tv1 = findViewById(R.id.tv_res1);
+        tv2 = findViewById(R.id.tv_res2);
 
-        mBt_scan = (Button) findViewById(R.id.bt_scan);
-        bt_start = (Button) findViewById(R.id.bt_start);
-        bt_end = (Button) findViewById(R.id.bt_end);
+        mBt_scan = findViewById(R.id.bt_scan);
+        bt_start = findViewById(R.id.bt_start);
+        bt_end = findViewById(R.id.bt_end);
 
-        bt_timeclick=(Button)findViewById(R.id.bt_time) ;
-        bt_point=(Button)findViewById(R.id.bt_point) ;
-        et_point=(EditText) findViewById(R.id.ed_point);
+        bt_timeclick= findViewById(R.id.bt_time);
+        bt_point= findViewById(R.id.bt_point);
+        et_point= findViewById(R.id.ed_point);
 
         bt_start.setOnClickListener(this);
         bt_end.setOnClickListener(this);
@@ -213,10 +213,10 @@ public class MyActivity extends BaseBleMapbox implements View.OnClickListener{
         bt_timeclick.setOnClickListener(this);
         bt_point.setOnClickListener(this);
 
-        mTv_deviceNum = (TextView) findViewById(R.id.tv_deviceNum);
-        tv_timeNum=(TextView)findViewById(R.id.tv_timeNum) ;
+        mTv_deviceNum = findViewById(R.id.tv_deviceNum);
+        tv_timeNum= findViewById(R.id.tv_timeNum);
 
-        mSp_device = (Spinner) findViewById(R.id.spinner_device);
+        mSp_device = findViewById(R.id.spinner_device);
         findViewById(R.id.bt_my_to_map).setOnClickListener(view -> startActivity(new Intent(this, MainActivity.class)));
 //        bt_start.setEnabled(true);
 //        bt_end.setEnabled(false);
@@ -338,7 +338,7 @@ public class MyActivity extends BaseBleMapbox implements View.OnClickListener{
         if_start_logging = 1;
 
         /*向每个imu发送数据*/
-        String address = null;
+        String address;
         for (int i = 0; i < connectaddresses.size(); i++) {
 
             address = connectaddresses.get(i);
@@ -378,7 +378,7 @@ public class MyActivity extends BaseBleMapbox implements View.OnClickListener{
             bytes[0]='s';
             bytes[1]=(byte)landmark_point;
 
-            String address = null;
+            String address;
             for (int i = 0; i < connectaddresses.size(); i++) {
                 address = connectaddresses.get(i);
                 //String address = "DA:15:08:4F:08:90";

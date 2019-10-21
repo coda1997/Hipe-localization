@@ -165,85 +165,77 @@ public class BaseBleMapbox extends AppCompatActivity {
     * 设置ble服务监听
     * */
     private void setBleServiceListener() {
-        mBleService.setOnServicesDiscoveredListener(new BleService.OnServicesDiscoveredListener() {
-            @Override
-            public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-                BluetoothGattCharacteristic UartCharacteristicsReceive = null;
+        mBleService.setOnServicesDiscoveredListener((gatt, status) -> {
+            BluetoothGattCharacteristic UartCharacteristicsReceive = null;
 
-                if (status == BluetoothGatt.GATT_SUCCESS) {
-                    gattServiceList = gatt.getServices();
-                    serviceList.clear();
-                    for (BluetoothGattService service :
-                            gattServiceList) {
-                        String serviceUuid = service.getUuid().toString();
-                        serviceList.add(MyGattAttributes.lookup(serviceUuid, "Unknown") + "\n" + serviceUuid);
-                        Log.i(TAG, "service=" + MyGattAttributes.lookup(serviceUuid, "Unknown") + serviceUuid);
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                gattServiceList = gatt.getServices();
+                serviceList.clear();
+                for (BluetoothGattService service :
+                        gattServiceList) {
+                    String serviceUuid = service.getUuid().toString();
+                    serviceList.add(MyGattAttributes.lookup(serviceUuid, "Unknown") + "\n" + serviceUuid);
+                    Log.i(TAG, "service=" + MyGattAttributes.lookup(serviceUuid, "Unknown") + serviceUuid);
 
-                        List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
-                        String[] charArra = new String[characteristics.size()];
-                        for (int i = 0; i < characteristics.size(); i++) {
-                            String charUuid = characteristics.get(i).getUuid().toString();
-                            charArra[i] = MyGattAttributes.lookup(charUuid, "Unknown") + "\n" + charUuid;
-                            Log.i(TAG, "characteristics=" + MyGattAttributes.lookup(charUuid, "Unknown") + charUuid);
+                    List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
+                    String[] charArra = new String[characteristics.size()];
+                    for (int i = 0; i < characteristics.size(); i++) {
+                        String charUuid = characteristics.get(i).getUuid().toString();
+                        charArra[i] = MyGattAttributes.lookup(charUuid, "Unknown") + "\n" + charUuid;
+                        Log.i(TAG, "characteristics=" + MyGattAttributes.lookup(charUuid, "Unknown") + charUuid);
 
-                            ///////////////////////////////////////////////////获取串口接收 characteristics
-                            if (charUuid.toUpperCase().equals(MyGattAttributes.CHARACTERISTIC_UART_RECEIVE)) {
-                                if (UartCharacteristicsReceive == null || UartCharacteristicsReceive.getDescriptors().size() == 0) {
-                                    UartCharacteristicsReceive = characteristics.get(i);
-                                }
-                            }
-                            ///////////////////////////////////////////
-
-                            BluetoothGattCharacteristic characteristic = characteristics.get(i);
-                            List<BluetoothGattDescriptor> descriptors = characteristic.getDescriptors();
-                            for (BluetoothGattDescriptor descriptor : descriptors) {
-                                String descriptorUuid = descriptor.getUuid().toString();
-                                Log.i(TAG, "descriptor=" + MyGattAttributes.lookup(descriptorUuid, "Unknown") + descriptorUuid);
+                        ///////////////////////////////////////////////////获取串口接收 characteristics
+                        if (charUuid.toUpperCase().equals(MyGattAttributes.CHARACTERISTIC_UART_RECEIVE)) {
+                            if (UartCharacteristicsReceive == null || UartCharacteristicsReceive.getDescriptors().size() == 0) {
+                                UartCharacteristicsReceive = characteristics.get(i);
                             }
                         }
-                        characteristicList.add(charArra);
+                        ///////////////////////////////////////////
+
+                        BluetoothGattCharacteristic characteristic = characteristics.get(i);
+                        List<BluetoothGattDescriptor> descriptors = characteristic.getDescriptors();
+                        for (BluetoothGattDescriptor descriptor : descriptors) {
+                            String descriptorUuid = descriptor.getUuid().toString();
+                            Log.i(TAG, "descriptor=" + MyGattAttributes.lookup(descriptorUuid, "Unknown") + descriptorUuid);
+                        }
                     }
-                    if (UartCharacteristicsReceive != null) {
-                        setCharacteristicNotification(gatt, UartCharacteristicsReceive, true);
-                    }
+                    characteristicList.add(charArra);
+                }
+                if (UartCharacteristicsReceive != null) {
+                    setCharacteristicNotification(gatt, UartCharacteristicsReceive, true);
                 }
             }
         });
 
-        mBleService.setOnConnectListener(new MultipleBleService.OnConnectionStateChangeListener() {
-            //Callback indicating when GATT client has connected/disconnected to/from a remoteGATT server.
-            @Override
-            public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-                if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+        //Callback indicating when GATT client has connected/disconnected to/from a remoteGATT server.
+        mBleService.setOnConnectListener((gatt, status, newState) -> {
+            if (newState == BluetoothProfile.STATE_DISCONNECTED) {
 
-                    for (int i = 0; i < connectaddresses.size(); i++) {
-                        if (connectaddresses.get(i).equals(gatt.getDevice().getAddress())) {
-                            //移除记录的数据
-                            connectaddresses.remove(i);
-                            connectnames.remove(i);
-                        }
+                for (int i = 0; i < connectaddresses.size(); i++) {
+                    if (connectaddresses.get(i).equals(gatt.getDevice().getAddress())) {
+                        //移除记录的数据
+                        connectaddresses.remove(i);
+                        connectnames.remove(i);
                     }
-                    String deviceName = gatt.getDevice().getName();
-                    if (mList_device.contains(deviceName)) {
-                        mList_device.remove(deviceName);
-                    }
-
-                } else if (newState == BluetoothProfile.STATE_CONNECTING) {
-
-                } else if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    gatt.discoverServices();
-
-                    //不存在则加入
-                    if (!(connectaddresses.contains(gatt.getDevice().getAddress()))) {
-                        connectaddresses.add(gatt.getDevice().getAddress());
-                        connectnames.add(gatt.getDevice().getName());
-                    }
-                    if (!mList_device.contains(gatt.getDevice().getName())) {
-                        mList_device.add(gatt.getDevice().getName());
-                    }
-                } else if (newState == BluetoothProfile.STATE_DISCONNECTING) {
-
                 }
+                String deviceName = gatt.getDevice().getName();
+                mList_device.remove(deviceName);
+
+            } else if (newState == BluetoothProfile.STATE_CONNECTING) {
+
+            } else if (newState == BluetoothProfile.STATE_CONNECTED) {
+                gatt.discoverServices();
+
+                //不存在则加入
+                if (!(connectaddresses.contains(gatt.getDevice().getAddress()))) {
+                    connectaddresses.add(gatt.getDevice().getAddress());
+                    connectnames.add(gatt.getDevice().getName());
+                }
+                if (!mList_device.contains(gatt.getDevice().getName())) {
+                    mList_device.add(gatt.getDevice().getName());
+                }
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTING) {
+
             }
         });
 
@@ -258,9 +250,9 @@ public class BaseBleMapbox extends AppCompatActivity {
             public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
 //                Log.e("数据传入手机","111");
                 String strblenaem = gatt.getDevice().toString();//最好用地址表达
-                characteristic.getFloatValue(50, 0).floatValue();
-                characteristic.getFloatValue(50, 1).floatValue();
-                characteristic.getFloatValue(50, 2).floatValue();
+                characteristic.getFloatValue(50, 0);
+                characteristic.getFloatValue(50, 1);
+                characteristic.getFloatValue(50, 2);
                 byte[] arrayBytes = characteristic.getValue();
                 ByteArrayInputStream localByteArrayInputStream = new ByteArrayInputStream(arrayBytes);
                 DataInputStream localDataInputStream = new DataInputStream(localByteArrayInputStream);
@@ -286,11 +278,11 @@ public class BaseBleMapbox extends AppCompatActivity {
 
                         //结果写入文件
                         Object[] arrayOfObject = new Object[6];
-                        arrayOfObject[0] = Double.valueOf(c_t);
-                        arrayOfObject[1] = Float.valueOf(localbledata.t);
-                        arrayOfObject[2] = Float.valueOf(localbledata.x);
-                        arrayOfObject[3] = Float.valueOf(localbledata.y);
-                        arrayOfObject[4] = Float.valueOf(localbledata.z);
+                        arrayOfObject[0] = c_t;
+                        arrayOfObject[1] = localbledata.t;
+                        arrayOfObject[2] = localbledata.x;
+                        arrayOfObject[3] = localbledata.y;
+                        arrayOfObject[4] = localbledata.z;
                         arrayOfObject[5] = Float.valueOf("0.0");
                         if(MyActivity.TimeButtonPush == 1) // 用于标记何时按下了按键
                         {
@@ -350,12 +342,9 @@ public class BaseBleMapbox extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        //deviceAdapter.notifyDataSetChanged();
-                        //Toast.makeText(MyActivity.this,b, Toast.LENGTH_LONG).show();
-                    }
+                mHandler.post(() -> {
+                    //deviceAdapter.notifyDataSetChanged();
+                    //Toast.makeText(MyActivity.this,b, Toast.LENGTH_LONG).show();
                 });
             }
 

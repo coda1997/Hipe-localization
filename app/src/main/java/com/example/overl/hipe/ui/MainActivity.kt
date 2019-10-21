@@ -276,8 +276,8 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         var lng = pointCoord.longitude
         val offset = MyActivity.coords
         lat +=offset[0]*0.00000899
-        lng +=offset[1]*0.00001141
-        tv_lat.text="lat:${lat}"
+        lng +=offset[1]*0.00001141// 换算系数
+        tv_lat.text= "lat:$lat"
         tv_lng.text="lng:${lng}"
         pointCoord.latitude=lat
         pointCoord.longitude=lng
