@@ -1,8 +1,11 @@
 package com.example.overl.hipe.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.KeyEvent
 import android.view.Window
+import com.example.overl.hipe.MyActivity
 import com.example.overl.hipe.R
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.maps.MapView
@@ -22,6 +25,18 @@ open class BaseActivity: AppCompatActivity() {
         mapView?.onCreate(savedInstanceState)
     }
 
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event?.repeatCount == 0) {
+            val intent = Intent(this, MyActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
+            startActivity(intent)
+            return true
+        }
+
+
+
+        return super.onKeyDown(keyCode, event)
+    }
 
     override fun onStart() {
         super.onStart()

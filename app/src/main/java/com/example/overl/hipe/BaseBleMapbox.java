@@ -472,12 +472,10 @@ public class BaseBleMapbox extends AppCompatActivity {
             byte[] Writebytes = {2, 3, 0};
             characteristic.setValue(Writebytes);
             bluetoothGatt.writeCharacteristic(characteristic);
-            return;
         } else if (data.equals("255")) {
             byte[] Writebytes = {127};
             characteristic.setValue(Writebytes);
             bluetoothGatt.writeCharacteristic(characteristic);
-            return;
         }
     }
 
@@ -488,7 +486,7 @@ public class BaseBleMapbox extends AppCompatActivity {
                                     byte[] data) {
         characteristic.setValue(data);
         bluetoothGatt.writeCharacteristic(characteristic);
-        return;
+
 
     }
     public static float[] coords = new float[3];

@@ -217,11 +217,16 @@ public class MyActivity extends BaseBleMapbox implements View.OnClickListener{
         tv_timeNum= findViewById(R.id.tv_timeNum);
 
         mSp_device = findViewById(R.id.spinner_device);
-        findViewById(R.id.bt_my_to_map).setOnClickListener(view -> startActivity(new Intent(this, MainActivity.class)));
+        findViewById(R.id.bt_my_to_map).setOnClickListener(view -> {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+            startActivity(intent);
+        });
 //        bt_start.setEnabled(true);
 //        bt_end.setEnabled(false);
 
     }
+
 
     public String getFileNamebyDate() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
