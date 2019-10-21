@@ -1,20 +1,14 @@
 package com.example.overl.hipe.ui
 
 import android.content.Context
-import android.content.res.AssetManager
 import android.graphics.Color
 import android.os.AsyncTask
-import android.provider.CalendarContract
-import android.text.TextUtils
 import android.util.Log
-import com.mapbox.geojson.gson.GeoJsonAdapterFactory
-import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.annotations.PolygonOptions
 import com.mapbox.mapboxsdk.annotations.PolylineOptions
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import org.jetbrains.anko.runOnUiThread
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader

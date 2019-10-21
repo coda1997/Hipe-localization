@@ -1,11 +1,7 @@
 package com.example.overl.hipe.ui
 
-import android.app.AlertDialog
-import android.content.Intent
 import android.os.Bundle
-import android.support.v7.widget.Toolbar
 import android.util.Log
-import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import com.example.overl.hipe.R
@@ -35,8 +31,7 @@ class LocActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Local
 
     private var currentMarker: Marker? = null
     private var currentFloor = 1
-    private var currentDialog: AlertDialog? = null
-    lateinit var localizer: WiFi_Localizer_WKNN
+    private lateinit var localizer: WiFi_Localizer_WKNN
 
     override fun onMapLongClick(point: LatLng) {
 
@@ -68,9 +63,9 @@ class LocActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Local
     }
 
     private fun loadLocalMapResource() {
-        mapboxMap?.setInfoWindowAdapter { marker: Marker ->
+        mapboxMap?.setInfoWindowAdapter {
             val v = View.inflate(this, R.layout.marker_loc_info, null)
-            val tv = v.find<TextView>(R.id.tv_location)
+            v.find<TextView>(R.id.tv_location)
             v
         }
 
@@ -93,13 +88,13 @@ class LocActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Local
         }
     }
 
-    private fun toMainActivity(){
-        if(localizer.isRunning)
-            localizer.stop()
-        val intent = Intent()
-        intent.setClass(this, MainActivity::class.java)
-        startActivity(intent)
-    }
+//    private fun toMainActivity(){
+//        if(localizer.isRunning)
+//            localizer.stop()
+//        val intent = Intent()
+//        intent.setClass(this, MainActivity::class.java)
+//        startActivity(intent)
+//    }
 
     private fun drawPoints(floor: Int){
         doAsyncResult {

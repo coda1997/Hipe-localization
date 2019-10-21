@@ -1,18 +1,13 @@
 package com.example.overl.hipe.ui
 
 import android.app.AlertDialog
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.support.v7.widget.Toolbar
 import android.util.Log
-import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import com.example.overl.hipe.*
 import com.example.overl.hipe.background.WiFi_Scanner_
 import com.example.overl.hipe.service.SyncService
-import com.example.overl.hipe.service.getCoordWithFootMounted
 import com.example.overl.hipe.service.getSyncService
 
 import com.mapbox.mapboxsdk.annotations.IconFactory
@@ -24,13 +19,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main_ui.*
-import kotlinx.coroutines.isActive
-
 
 import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.ArrayList
 
 class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scanner_.ScannerListener {
@@ -220,23 +211,13 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         utils.execute()
     }
 
-//    private fun changeFloorMap(floor: Int) {
-//        if (floor != currentFloor) {
-//            //mapboxMap?.clear()
-//            currentMarker = null
-//            val utils = GeoJsonUtils(this@MainActivity, mapboxMap!!)
-//            utils.filePath = "shilintong/MapData$floor.txt"
-//            utils.execute()
-//            drawPoints(floor)
-//            currentFloor = floor
-//        }
-//    }
 
-    private fun toLocActivity() {
-        val intent = Intent()
-        intent.setClass(this, LocActivity::class.java)
-        startActivity(intent)
-    }
+
+//    private fun toLocActivity() {
+//        val intent = Intent()
+//        intent.setClass(this, LocActivity::class.java)
+//        startActivity(intent)
+//    }
 
     private fun drawPoints(floor: Int) {
         val list = doAsyncResult {
@@ -277,8 +258,10 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         val offset = MyActivity.coords
         lat +=offset[0]*0.00000899
         lng +=offset[1]*0.00001141// 换算系数
-        tv_lat.text= "lat:$lat"
-        tv_lng.text="lng:${lng}"
+        val latString = "lat:$lat"
+        tv_lat.text= latString
+        val lngString = "lng:${lng}"
+        tv_lng.text= lngString
         pointCoord.latitude=lat
         pointCoord.longitude=lng
         preMarker?.apply {
@@ -290,14 +273,6 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
 
     }
 
-//    private fun coordWithFootMounted():FloatArray{
-//        //add a button to do the coord
-//        //here is a core function
-//        val coord = getCoordWithFootMounted()
-//        //add it
-//        //float[3]
-//        //mapboxMap?.addMarker(MarkerOptions().position())
-//    }
 
     private fun getMarkerByPoint(point: Point): Marker? {
         return mapboxMap?.markers?.filter { it.position.latitude == point.latitude && it.position.longitude == point.longitude }?.get(0)
