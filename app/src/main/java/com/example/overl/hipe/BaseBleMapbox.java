@@ -1,5 +1,6 @@
 package com.example.overl.hipe;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -14,6 +15,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -490,4 +492,14 @@ public class BaseBleMapbox extends AppCompatActivity {
 
     }
     public static float[] coords = new float[3];
+
+    private int keyBackCount = 0;
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode==KeyEvent.KEYCODE_BACK&&event.getRepeatCount()==0){
+            return true;
+        }
+
+        return super.onKeyDown(keyCode, event);
+    }
 }

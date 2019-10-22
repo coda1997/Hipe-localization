@@ -146,78 +146,63 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
                 tv_lng?.text=lngString
                 toast("已选取基准点")
             }
+            val collectBt = v.find<Button>(R.id.bt_collect)
+            val deleteBt = v.find<Button>(R.id.bt_delete)
+            collectBt.onClick {
+                //call methods to collect information
+                toast("collecting data now !")
+                currentDialog = this@MainActivity.alert(title = "开始采集", message = "现在已采集0轮") {
+                    isCancelable = false
+                    okButton {
+                        title = "停止采集并保存"
+                        currentDialog = null
+                        wifiScanner.stop()
+
+                    }
+                }.show()
+                wifiScanner.startScan(marker.position.longitude, marker.position.latitude, 64)
+                marker.icon = IconFactory.getInstance(this@MainActivity).fromResource(R.mipmap.edit_maker_blue_collected)
+                mapboxMap?.updateMarker(marker)
+                mapboxMap?.deselectMarker(marker)
+                currentMarker = null
+
+            }
+            deleteBt.onClick { _ ->
+
+
+                this@MainActivity.alert("Delete this point ?", "Delete") {
+                    cancelButton { }
+                    okButton { _ ->
+
+                        val points = pointsUploaded.filter { it.latitude == marker.position.latitude && it.longitude == marker.position.longitude && it.floor == currentFloor }
+                        if (points.isNotEmpty()) {
+                            service.deletePoint(points[0].id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { res, ex ->
+                                if (res != null && res.code == 200) {
+                                    wifiScanner.delete(marker.position.longitude, marker.position.latitude)
+                                    mapboxMap?.removeMarker(marker)
+                                    currentMarker = null
+                                    toast("删除成功")
+                                } else {
+                                    toast("删除失败${ex.localizedMessage}")
+                                }
+                            }
+                        } else {
+                            toast("目标点已删除")
+                        }
+                    }
+                }.show()
+            }
             v
         }
 
     }
 
     private fun loadLocalMapResource() {
-//        mapboxMap?.setInfoWindowAdapter { marker: Marker ->
-//            val v = View.inflate(this, R.layout.maker_window_info, null)
-//            val collectBt = v.find<Button>(R.id.bt_collect)
-//            val deleteBt = v.find<Button>(R.id.bt_delete)
-//            collectBt.onClick {
-//                //call methods to collect information
-//                toast("collecting data now !")
-//                currentDialog = this@MainActivity.alert(title = "开始采集", message = "现在已采集0轮") {
-//                    isCancelable = false
-//                    okButton {
-//                        title = "停止采集并保存"
-//                        currentDialog = null
-//                        wifiScanner.stop()
-//
-//                    }
-//                }.show()
-//                wifiScanner.startScan(marker.position.longitude, marker.position.latitude, 64)
-//                marker.icon = IconFactory.getInstance(this@MainActivity).fromResource(R.mipmap.edit_maker_blue_collected)
-//                mapboxMap?.updateMarker(marker)
-//                mapboxMap?.deselectMarker(marker)
-//                currentMarker = null
-//
-//            }
-//            deleteBt.onClick { _ ->
-//                //call methods to delete points
-////                mapboxMap?.removeMarker(marker)
-//
-//                this@MainActivity.alert("Delete this point ?", "Delete") {
-//                    cancelButton { }
-//                    okButton { _ ->
-////                        wifiScanner.delete(marker.position.longitude, marker.position.latitude)
-////                        mapboxMap?.removeMarker(marker)
-////                        currentMarker = null
-//                        val points = pointsUploaded.filter { it.latitude == marker.position.latitude && it.longitude == marker.position.longitude&&it.floor==currentFloor }
-//                        if (points.isNotEmpty()){
-//                            service.deletePoint(points[0].id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { res, ex ->
-//                                if (res != null && res.code == 200) {
-//                                    wifiScanner.delete(marker.position.longitude, marker.position.latitude)
-//                                    mapboxMap?.removeMarker(marker)
-//                                    currentMarker = null
-//                                    toast("删除成功")
-//                                } else {
-//                                    toast("删除失败${ex.localizedMessage}")
-//                                }
-//                            }
-//                        }else{
-//                            toast("目标点已删除")
-//                        }
-//                    }
-//                }.show()
-//            }
-//            v
-//        }
-
         val utils = GeoJsonUtils(this@MainActivity, mapboxMap!!)
         utils.filePath = "shilintong/MapLib1.txt"
         utils.execute()
     }
 
-
-
-//    private fun toLocActivity() {
-//        val intent = Intent()
-//        intent.setClass(this, LocActivity::class.java)
-//        startActivity(intent)
-//    }
 
     private fun drawPoints(floor: Int) {
         val list = doAsyncResult {
