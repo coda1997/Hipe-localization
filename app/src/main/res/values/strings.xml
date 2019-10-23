@@ -6,7 +6,7 @@
     <string name="latitude">Latitude</string>
     <string name="loc">空间名</string>
     <string name="time">时间(S)</string>
-    <string name="base_url">120.78.190.36:8080</string>
+    <string name="base_url">203.207.224.107:33001</string>
     <string name="bt_coord">确定位置</string>
     <string name="display_map">显示地图</string>
     <string name="take_as_base">作为基础点</string>

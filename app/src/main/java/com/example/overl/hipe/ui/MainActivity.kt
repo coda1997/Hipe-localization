@@ -33,42 +33,41 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
     }
 
     override fun onScanFinished(point: Point?) {
-        if(round==0){
+        if (round == 0) {
             runOnUiThread {
                 toast("采集取消")
             }
             return
         }
         round = 0
-        //暂时不用联网功能
-//        if (point != null) {
-//            CompositeDisposable().add(
-//                    service.getPoints(timestamp+1, currentFloor).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { t1: Data?, t2: Throwable? ->
-//                        t1?.data?.points?.forEach {
-//                            mapboxMap?.addMarker(MarkerOptions().position(LatLng(it.latitude, it.longitude)).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_green_upload)))
-//                            pointsUploaded.add(it)
-//                        }
-//                        t2?.printStackTrace()
-//                    }
-//            )
-//            CompositeDisposable().add(service.addPoint(point)
-//                    .subscribeOn(Schedulers.io())
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribe { body: Data?, ex: Throwable? ->
-//                        if (body != null && body.code == 200) {
-//                            toast("上传成功")
-//                            getMarkerByPoint(point)?.apply {
-//                                icon = IconFactory.getInstance(this@MainActivity).fromResource(R.mipmap.edit_maker_green_upload)
-//                                mapboxMap?.updateMarker(this)
-//
-//                            }
-//                            pointsUploaded.add(point)
-//                        } else {
-//                            toast("上传失败")
-//                        }
-//                        ex?.printStackTrace()
-//                    })
-//        }
+        if (point != null) {
+            CompositeDisposable().add(
+                    service.getPoints(timestamp + 1, currentFloor).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { t1: Data?, t2: Throwable? ->
+                        t1?.data?.points?.forEach {
+                            mapboxMap?.addMarker(MarkerOptions().position(LatLng(it.latitude, it.longitude)).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_green_upload)))
+                            pointsUploaded.add(it)
+                        }
+                        t2?.printStackTrace()
+                    }
+            )
+            CompositeDisposable().add(service.addPoint(point)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe { body: Data?, ex: Throwable? ->
+                        if (body != null && body.code == 200) {
+                            toast("上传成功")
+                            getMarkerByPoint(point)?.apply {
+                                icon = IconFactory.getInstance(this@MainActivity).fromResource(R.mipmap.edit_maker_green_upload)
+                                mapboxMap?.updateMarker(this)
+
+                            }
+                            pointsUploaded.add(point)
+                        } else {
+                            toast("上传失败")
+                        }
+                        ex?.printStackTrace()
+                    })
+        }
     }
 
     private var timestamp: Long = 0L
@@ -129,21 +128,21 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
             fetchCoord()
 
         }
-        bt_coord?.isEnabled=false
+        bt_coord?.isEnabled = false
     }
 
     private fun initWindowAdapter() {
         mapboxMap?.setInfoWindowAdapter { marker ->
-            val v = View.inflate(this,R.layout.base_point_maker_window_info,null)
+            val v = View.inflate(this, R.layout.base_point_maker_window_info, null)
             val basePointBt = v.find<Button>(R.id.bt_decide)
             basePointBt.onClick {
                 //activate coord function
-                bt_coord?.isEnabled=true
-                baseCoord= LatLng(marker.position.latitude,marker.position.longitude)
+                bt_coord?.isEnabled = true
+                baseCoord = LatLng(marker.position.latitude, marker.position.longitude)
                 val latString = "lat:${marker.position.latitude}"
                 val lngString = "lng:${marker.position.longitude}"
-                tv_lat?.text=latString
-                tv_lng?.text=lngString
+                tv_lat?.text = latString
+                tv_lng?.text = lngString
                 toast("已选取基准点")
             }
             val collectBt = v.find<Button>(R.id.bt_collect)
@@ -172,27 +171,27 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
                     cancelButton { }
                     okButton {
 
-                        wifiScanner.delete(marker.position.longitude, marker.position.latitude)
-                        mapboxMap?.removeMarker(marker)
-                        currentMarker = null
-                        toast("删除成功")
+                        //                        wifiScanner.delete(marker.position.longitude, marker.position.latitude)
+//                        mapboxMap?.removeMarker(marker)
+//                        currentMarker = null
+//                        toast("删除成功")
 
 
-//                        val points = pointsUploaded.filter { it.latitude == marker.position.latitude && it.longitude == marker.position.longitude && it.floor == currentFloor }
-//                        if (points.isNotEmpty()) {
-//                            service.deletePoint(points[0].id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { res, ex ->
-//                                if (res != null && res.code == 200) {
-//                                    wifiScanner.delete(marker.position.longitude, marker.position.latitude)
-//                                    mapboxMap?.removeMarker(marker)
-//                                    currentMarker = null
-//                                    toast("删除成功")
-//                                } else {
-//                                    toast("删除失败${ex.localizedMessage}")
-//                                }
-//                            }
-//                        } else {
-//                            toast("目标点已删除")
-//                        }
+                        val points = pointsUploaded.filter { it.latitude == marker.position.latitude && it.longitude == marker.position.longitude && it.floor == currentFloor }
+                        if (points.isNotEmpty()) {
+                            service.deletePoint(points[0].id).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { res, ex ->
+                                if (res != null && res.code == 200) {
+                                    wifiScanner.delete(marker.position.longitude, marker.position.latitude)
+                                    mapboxMap?.removeMarker(marker)
+                                    currentMarker = null
+                                    toast("删除成功")
+                                } else {
+                                    toast("删除失败${ex.localizedMessage}")
+                                }
+                            }
+                        } else {
+                            toast("目标点已删除")
+                        }
                     }
                 }.show()
             }
@@ -218,15 +217,15 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
 
             mapboxMap?.addMarker(MarkerOptions().position(LatLng(it.latitude, it.longitude)).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_green_upload)))
         }
-        timestamp = list.maxBy { it.id }?.id?:timestamp
+        timestamp = list.maxBy { it.id }?.id ?: timestamp
         CompositeDisposable().add(
-                service.getPoints(timestamp+1, floor).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { t1: Data?, t2: Throwable? ->
+                service.getPoints(timestamp + 1, floor).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { t1: Data?, t2: Throwable? ->
                     t1?.data?.points?.forEach { mapboxMap?.addMarker(MarkerOptions().position(LatLng(it.latitude, it.longitude)).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_green_upload))) }
                     t1?.data?.points?.apply { pointsUploaded.addAll(this) }?.forEach {
                         val f = wifiScanner.savePointInLocalStorage(it)
-                        Log.e("save point","$f")
+                        Log.e("save point", "$f")
                     }
-                    if (t2==null){
+                    if (t2 == null) {
                         toast("同步成功")
                     }
                     t2?.printStackTrace()
@@ -239,27 +238,27 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
     * 添加一个当前位置的全局变量，可以通过校正点来校正
     *
     * */
-    private lateinit var baseCoord:LatLng
-    private var currentCoord:LatLng= LatLng(0.0,0.0)
-    private var preMarker:Marker?=null
-    private fun fetchCoord(){
+    private lateinit var baseCoord: LatLng
+    private var currentCoord: LatLng = LatLng(0.0, 0.0)
+    private var preMarker: Marker? = null
+    private fun fetchCoord() {
         var lat = baseCoord.latitude
         var lng = baseCoord.longitude
         val offset = MyActivity.coords
-        lat +=offset[0]*0.00000899
-        lng +=offset[1]*0.00001141// 换算系数
+        lat += offset[0] * 0.00000899
+        lng += offset[1] * 0.00001141// 换算系数
         val latString = "lat:$lat"
-        tv_lat.text= latString
+        tv_lat.text = latString
         val lngString = "lng:${lng}"
-        tv_lng.text= lngString
+        tv_lng.text = lngString
 
-        currentCoord.latitude=lat
-        currentCoord.longitude=lng
+        currentCoord.latitude = lat
+        currentCoord.longitude = lng
         preMarker?.apply {
             mapboxMap?.removeMarker(this)
         }
         runOnUiThread {
-            preMarker=mapboxMap?.addMarker(MarkerOptions().position(currentCoord).icon(IconFactory.getInstance(this).fromResource(R.drawable.ic_person_pin_circle_green_500_24dp)))
+            preMarker = mapboxMap?.addMarker(MarkerOptions().position(currentCoord).icon(IconFactory.getInstance(this).fromResource(R.drawable.ic_person_pin_circle_green_500_24dp)))
         }
 
     }
@@ -269,9 +268,9 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         return mapboxMap?.markers?.filter { it.position.latitude == point.latitude && it.position.longitude == point.longitude }?.get(0)
     }
 
-    private fun addDummyPoints(){
+    private fun addDummyPoints() {
         val marker = MarkerOptions()
-                .position(LatLng(30.469658638696743,114.52622765032265))
+                .position(LatLng(30.469658638696743, 114.52622765032265))
                 .icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_red_uncollected))
         mapboxMap?.addMarker(marker).apply {
             toast("add dummy points")
