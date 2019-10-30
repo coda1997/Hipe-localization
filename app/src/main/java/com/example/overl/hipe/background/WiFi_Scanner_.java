@@ -416,8 +416,8 @@ public class WiFi_Scanner_ {
                             e.printStackTrace();
                         }
                         boolean r0 = record(longitude, latitude, point_output.getId(), SIGNAL_TYPE_WIFI);
-                        //boolean r1 = record(longitude, latitude, point_output.getId(), SIGNAL_TYPE_IBEACON);
-                        if(r0) {
+                        boolean r1 = record(longitude, latitude, point_output.getId(), SIGNAL_TYPE_IBEACON);
+                        if(r0||r1) {
                             pts.add(new PointA(longitude, latitude, android.os.Build.MODEL));
                             pts_timestamp.add(point_output.getId());
                             //Log.e("record"+pts.size(), ""+pts_timestamp.size());
