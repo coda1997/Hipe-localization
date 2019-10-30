@@ -6,7 +6,7 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
 private fun getRetrofit() = Retrofit.Builder()
-        .baseUrl("http://120.78.190.36:8080")
+        .baseUrl("http://203.207.224.107:33001")
         .addConverterFactory(GsonConverterFactory.create())
         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
         .client(OkHttpClient())

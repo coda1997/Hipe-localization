@@ -59,7 +59,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
                             getMarkerByPoint(point)?.apply {
                                 icon = IconFactory.getInstance(this@MainActivity).fromResource(R.mipmap.edit_maker_green_upload)
                                 mapboxMap?.updateMarker(this)
-
+                                preMarker=null
                             }
                             pointsUploaded.add(point)
                         } else {
@@ -143,6 +143,8 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
                 val lngString = "lng:${marker.position.longitude}"
                 tv_lat?.text = latString
                 tv_lng?.text = lngString
+                offsetF[0]=MyActivity.coords[0]
+                offsetF[1]=MyActivity.coords[1]
                 toast("已选取基准点")
             }
             val collectBt = v.find<Button>(R.id.bt_collect)
@@ -239,12 +241,15 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
     *
     * */
     private lateinit var baseCoord: LatLng
+    private var offsetF = FloatArray(2)
     private var currentCoord: LatLng = LatLng(0.0, 0.0)
     private var preMarker: Marker? = null
     private fun fetchCoord() {
         var lat = baseCoord.latitude
         var lng = baseCoord.longitude
         val offset = MyActivity.coords
+        offset[0] -= offsetF[0]
+        offset[1] -= offsetF[1]
         lat += offset[0] * 0.00000899
         lng += offset[1] * 0.00001141// 换算系数
         val latString = "lat:$lat"
@@ -254,9 +259,9 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
 
         currentCoord.latitude = lat
         currentCoord.longitude = lng
-        preMarker?.apply {
-            mapboxMap?.removeMarker(this)
-        }
+//        preMarker?.apply {
+//            mapboxMap?.removeMarker(this)
+//        }
         runOnUiThread {
             preMarker = mapboxMap?.addMarker(MarkerOptions().position(currentCoord).icon(IconFactory.getInstance(this).fromResource(R.drawable.ic_person_pin_circle_green_500_24dp)))
         }
