@@ -105,7 +105,7 @@ public class MyActivity extends BaseBleMapbox implements View.OnClickListener{
         initView();
         initAdapter();
         registerReceiver(bleReceiver, makeIntentFilter());
-        startForegroundService(new Intent(this, MultipleBleService.class));//这个地方服务不开启
+        startService(new Intent(this, MultipleBleService.class));//这个地方服务不开启
         doBindService();
     }
 

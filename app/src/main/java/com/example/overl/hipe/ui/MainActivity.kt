@@ -32,6 +32,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
 
         val msg = "现在已采集${++round}轮"
         runOnUiThread { currentDialog?.setMessage(msg) }
+        fetchCoord()
     }
 
     override fun onScanFinished(point: Point?) {
@@ -154,15 +155,11 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
                 //init mapbox window adapter
                 initWindowAdapter()
                 drawPoints(currentFloor)
-                addDummyPoints()
+              //  addDummyPoints()
 
             }
             // active until deciding a base point
-            bt_coord?.onClick {
-                fetchCoord()
 
-            }
-            bt_coord?.isEnabled = false
         }
 
         private fun initWindowAdapter() {
@@ -171,12 +168,10 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
                 val basePointBt = v.find<Button>(R.id.bt_decide)
                 basePointBt.onClick {
                     //activate coord function
-                    bt_coord?.isEnabled = true
                     baseCoord = LatLng(marker.position.latitude, marker.position.longitude)
-                    val latString = "lat:${marker.position.latitude}"
-                    val lngString = "lng:${marker.position.longitude}"
-                    tv_lat?.text = latString
-                    tv_lng?.text = lngString
+//                    val latString = "lat:${marker.position.latitude}"
+//                    val lngString = "lng:${marker.position.longitude}"
+
                     offsetF[0] = MyActivity.coords[0]
                     offsetF[1] = MyActivity.coords[1]
                     toast("已选取基准点")
@@ -238,7 +233,7 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
 
         private fun loadLocalMapResource() {
             val utils = GeoJsonUtils(this@MainActivity, mapboxMap!!)
-            utils.filePath = "shilintong/MapLib1.txt"
+            utils.filePath = "shilintong/MapData${currentFloor}.txt"
             utils.execute()
         }
 
@@ -286,10 +281,10 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
             offset[1] -= offsetF[1]
             lat += offset[0] * 0.00000899
             lng += offset[1] * 0.00001141// 换算系数
-            val latString = "lat:$lat"
-            tv_lat.text = latString
-            val lngString = "lng:${lng}"
-            tv_lng.text = lngString
+//            val latString = "lat:$lat"
+//            tv_lat.text = latString
+//            val lngString = "lng:${lng}"
+//            tv_lng.text = lngString
 
             currentCoord.latitude = lat
             currentCoord.longitude = lng
@@ -307,14 +302,5 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
             return mapboxMap?.markers?.filter { it.position.latitude == point.latitude && it.position.longitude == point.longitude }?.get(0)
         }
 
-        private fun addDummyPoints() {
-            val marker = MarkerOptions()
-                    .position(LatLng(30.469658638696743, 114.52622765032265))
-                    .icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_red_uncollected))
-            mapboxMap?.addMarker(marker).apply {
-                toast("add dummy points")
-            }
 
-
-        }
     }
