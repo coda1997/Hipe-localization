@@ -8,7 +8,11 @@
     android:orientation="vertical"
     android:gravity="bottom"
     tools:context="com.example.overl.hipe.ui.MainActivity">
-
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        />
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
