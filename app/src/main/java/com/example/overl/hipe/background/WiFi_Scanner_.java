@@ -268,7 +268,7 @@ public class WiFi_Scanner_ {
                 for(int j = 0; j < ori_list.size(); ++j)
                     list.add(new MyRSS("", ori_list.get(j).getSsid(), ori_list.get(j).getLevel(), 0));
                 list_list.add(list);
-                time_list.add(new Long(current_ttt));
+                time_list.add(current_ttt);
                 current_ttt += 3000;
             }
             write_file(file_temp, list_list, time_list);
@@ -531,14 +531,17 @@ public class WiFi_Scanner_ {
                 public void onScanResult(int callbackType, android.bluetooth.le.ScanResult result) {
                     if(!bt_scanning)
                         return;
+
                     long current_timestamp = System.currentTimeMillis();
                     long current_timestamp_nano = result.getTimestampNanos();
                     final iBeaconClass.iBeacon ibeacon = iBeaconClass.fromScanData(result.getDevice(), result.getRssi(), result.getScanRecord().getBytes());
+
                     if(ibeacon == null)
                         return;
                     MyRSS item = new MyRSS(ibeacon.name, ibeacon.bluetoothAddress, ibeacon.rssi, last_bt_timestamp);
                     if (bt_list != null && !bt_list.contains(item) && current_timestamp_nano - last_bt_timestamp_nano < time_bt_threshold) {          //上一批数据
                         bt_list.add(item);
+
                     }else {                                                                                               //新一批数据
                         bt_list = new ArrayList<>(100);
                         bt_list_list.add(bt_list);
@@ -547,6 +550,9 @@ public class WiFi_Scanner_ {
                         bt_list.add(item);
 
                     }
+                    List<OriginalRes> list = new ArrayList<>();
+                    bt_list.forEach(it-> list.add(new OriginalRes(it.mac,it.rss)));
+                    point_output.getBlueToothScanRes().add(new BlueToothScanRes(System.currentTimeMillis() + "", list));
                     last_bt_timestamp_nano = result.getTimestampNanos();
                 }
             };

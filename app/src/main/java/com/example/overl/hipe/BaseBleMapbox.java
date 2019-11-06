@@ -75,9 +75,9 @@ public class BaseBleMapbox extends AppCompatActivity {
     protected List<String[]> characteristicList = new ArrayList<>();
 
     protected List<String> connectnames = new ArrayList<>();//连接设备的名字
-    protected List<String> connectaddresses = new ArrayList<>();//连接设备的名字
+    public static List<String> connectaddresses = new ArrayList<>();//连接设备的名字
 
-    protected MultipleBleService mBleService;
+    public static MultipleBleService mBleService;
 
     //控件
     protected Spinner mSp_device;
@@ -104,7 +104,7 @@ public class BaseBleMapbox extends AppCompatActivity {
 
     //数据缓冲
     Vector<Vector<BleData>> vDevices = new Vector<>();//用于存放不同的ble的接收的数据，目前只存在1.0位置信息
-    double Sys_t0;
+    public static double Sys_t0;
 
     //日期格式
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

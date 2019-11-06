@@ -10,7 +10,7 @@ data class Floor(val name: String, val content: String)
 
 data class Point(val id: Long, val latitude: Double, val longitude: Double, val floor: Int, val buildingName: String="shilintong", val wifiScanRes: List<WifiScanRes> = emptyList(), val blueToothScanRes: List<BlueToothScanRes> = emptyList(), val deviceModel: String = "unknown")
 
-class BlueToothScanRes // not used ye   t
+class BlueToothScanRes(val ctime:String, val ress:List<OriginalRes>)
 
     data class WifiScanRes(val ctime:String, val ress:List<OriginalRes>)
 

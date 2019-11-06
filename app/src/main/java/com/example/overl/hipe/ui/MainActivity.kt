@@ -24,22 +24,51 @@ import kotlinx.android.synthetic.main.activity_main_ui.*
 
 import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
-import java.util.ArrayList
+import java.util.*
 
 class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scanner_.ScannerListener {
     private var round: Int = 0
     override fun onScan(list: ArrayList<OriginalRes>?) {
 
         val msg = "现在已采集${++round}轮"
-        runOnUiThread { currentDialog?.setMessage(msg) }
-        fetchCoord()
+       // runOnUiThread { currentDialog?.setMessage(msg) }
+        if (round!=0){
+            pointNum++
+            wifiScanner.stop()
+            recordPoint(pointNum)
+        }
+    }
+    private var isStoped = true
+    private var pointNum = 0
+    private fun recordPoint(num:Int){
+        val t_click = (System.currentTimeMillis()-systime)/1000.0
+        val landmark = String.format("%.1f",t_click)
+        val strLandmark = "$num $landmark+ \n".toByteArray()
+
+        val bytes = ByteArray(2).apply {
+            this[0]='s'.toByte()
+            this[1]=num.toByte()
+        }
+        for (address in MyActivity.connectaddresses){
+            val gatt = MyActivity.mBleService.connectedBluetoothGatt[address]
+            val characteristic =
+                    gatt?.getService(UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e"))
+                            ?.getCharacteristic(UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e"))
+            characteristic?.value = bytes
+            gatt?.writeCharacteristic(characteristic)
+        }
+
     }
 
+
+
+
+    private var systime = MyActivity.Sys_t0
     override fun onScanFinished(point: Point?) {
         if (round == 0) {
-            runOnUiThread {
-                toast("采集取消")
-            }
+//            runOnUiThread {
+//                toast("采集取消")
+//            }
             return
         }
         round = 0
@@ -70,6 +99,9 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
                         }
                         ex?.printStackTrace()
                     })
+            if (!isStoped){
+                startScan()
+            }
         }
     }
 
@@ -169,28 +201,27 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
                 basePointBt.onClick {
                     //activate coord function
                     baseCoord = LatLng(marker.position.latitude, marker.position.longitude)
-//                    val latString = "lat:${marker.position.latitude}"
-//                    val lngString = "lng:${marker.position.longitude}"
-
+                    pointNum=0
                     offsetF[0] = MyActivity.coords[0]
                     offsetF[1] = MyActivity.coords[1]
                     toast("已选取基准点")
+                    isStoped=true
                 }
                 val collectBt = v.find<Button>(R.id.bt_collect)
                 val deleteBt = v.find<Button>(R.id.bt_delete)
                 collectBt.onClick {
                     //call methods to collect information
                     toast("collecting data now !")
-                    currentDialog = this@MainActivity.alert(title = "开始采集", message = "现在已采集0轮") {
-                        isCancelable = false
-                        okButton {
-                            title = "停止采集并保存"
-                            currentDialog = null
-                            wifiScanner.stop()
-
-                        }
-                    }.show()
-                    wifiScanner.startScan(marker.position.longitude, marker.position.latitude, 64)
+//                    currentDialog = this@MainActivity.alert(title = "开始采集", message = "现在已采集0轮") {
+//                        isCancelable = false
+//                        okButton {
+//                            title = "停止采集并保存"
+//                            currentDialog = null
+//                            wifiScanner.stop()
+//
+//                        }
+//                    }.show()
+                   startScan()
                     marker.icon = IconFactory.getInstance(this@MainActivity).fromResource(R.mipmap.edit_maker_blue_collected)
                     mapboxMap?.updateMarker(marker)
                     mapboxMap?.deselectMarker(marker)
@@ -301,6 +332,10 @@ class MainActivity : BaseActivity(), MapboxMap.OnMapLongClickListener, WiFi_Scan
         private fun getMarkerByPoint(point: Point): Marker? {
             return mapboxMap?.markers?.filter { it.position.latitude == point.latitude && it.position.longitude == point.longitude }?.get(0)
         }
-
+        private fun startScan(){
+            fetchCoord()
+            isStoped=false
+            wifiScanner.startScan(currentCoord.longitude,currentCoord.latitude,5)
+        }
 
     }
