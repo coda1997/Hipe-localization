@@ -11,6 +11,9 @@ import com.example.overl.hipe.*
 import com.example.overl.hipe.background.WiFi_Scanner_
 import com.example.overl.hipe.service.SyncService
 import com.example.overl.hipe.service.getSyncService
+import com.example.overl.hipe.util.Data
+import com.example.overl.hipe.util.OriginalRes
+import com.example.overl.hipe.util.Point
 
 import com.mapbox.mapboxsdk.annotations.IconFactory
 import com.mapbox.mapboxsdk.annotations.Marker
@@ -20,7 +23,6 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_main_ui.*
 
 import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk27.coroutines.onClick

@@ -1,4 +1,4 @@
-package com.example.overl.hipe;
+package com.example.overl.hipe.util;
 
 public class ConstantsBluetooth {
 	public static final int REQUEST_CONNECT_DEVICE = 1;

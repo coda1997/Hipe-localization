@@ -1,4 +1,4 @@
-package com.example.overl.hipe;
+package com.example.overl.hipe.util;
 
 import com.junkchen.blelib.GattAttributes;
 

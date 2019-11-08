@@ -1,6 +1,5 @@
-package com.example.overl.hipe;
+package com.example.overl.hipe.ui;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -21,6 +20,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.overl.hipe.R;
+import com.example.overl.hipe.util.MyGattAttributes;
 import com.junkchen.blelib.BleService;
 import com.junkchen.blelib.MultipleBleService;
 
@@ -36,11 +37,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
 
-import com.example.overl.hipe.tools.BleData;
-import com.example.overl.hipe.tools.BleXYZF;
-import com.example.overl.hipe.tools.Permissions;
+import com.example.overl.hipe.util.BleData;
+import com.example.overl.hipe.util.BleXYZF;
+import com.example.overl.hipe.util.Permissions;
 
-import static com.example.overl.hipe.tools.MathUtil.isEqualFloat;
+import static com.example.overl.hipe.util.MathUtil.isEqualFloat;
 
 
 public class BaseBleMapbox extends AppCompatActivity {

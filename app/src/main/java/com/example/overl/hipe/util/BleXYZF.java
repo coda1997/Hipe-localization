@@ -1,4 +1,4 @@
-package com.example.overl.hipe.tools;
+package com.example.overl.hipe.util;
 
 /**
  * Created by CXG on 2017/10/23.

@@ -1,4 +1,4 @@
-package com.example.overl.hipe;
+package com.example.overl.hipe.ui;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -19,6 +19,9 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.overl.hipe.R;
+import com.example.overl.hipe.util.ConstantsBluetooth;
 
 import java.util.ArrayList;
 import java.util.List;

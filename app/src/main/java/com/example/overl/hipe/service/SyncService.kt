@@ -1,8 +1,7 @@
 package com.example.overl.hipe.service
 
-import com.example.overl.hipe.Data
-import com.example.overl.hipe.Point
-import com.example.overl.hipe.RespondBody
+import com.example.overl.hipe.util.Data
+import com.example.overl.hipe.util.Point
 import io.reactivex.Single
 import retrofit2.http.*
 

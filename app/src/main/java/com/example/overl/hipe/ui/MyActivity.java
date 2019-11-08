@@ -1,4 +1,4 @@
-package com.example.overl.hipe;
+package com.example.overl.hipe.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -18,10 +18,10 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.example.overl.hipe.ui.MainActivity;
+import com.example.overl.hipe.R;
+import com.example.overl.hipe.util.ConstantsBluetooth;
 import com.junkchen.blelib.BleService;
 import com.junkchen.blelib.MultipleBleService;
 import java.io.File;
@@ -33,7 +33,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
 import com.example.overl.hipe.util.PersonID;

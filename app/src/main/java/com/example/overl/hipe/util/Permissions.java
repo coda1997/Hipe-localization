@@ -1,4 +1,4 @@
-package com.example.overl.hipe.tools;
+package com.example.overl.hipe.util;
 
 import android.Manifest;
 import android.app.Activity;

@@ -10,10 +10,10 @@ import android.net.wifi.WifiManager;
 import android.os.Environment;
 import android.util.Log;
 
-import com.example.overl.hipe.BlueToothScanRes;
-import com.example.overl.hipe.OriginalRes;
-import com.example.overl.hipe.Point;
-import com.example.overl.hipe.WifiScanRes;
+import com.example.overl.hipe.util.BlueToothScanRes;
+import com.example.overl.hipe.util.OriginalRes;
+import com.example.overl.hipe.util.Point;
+import com.example.overl.hipe.util.WifiScanRes;
 
 import java.io.File;
 import java.io.IOException;
