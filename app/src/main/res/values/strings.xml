@@ -9,7 +9,7 @@
     <string name="base_url">203.207.224.107:33001</string>
     <string name="bt_coord">确定位置</string>
     <string name="display_map">显示地图</string>
-    <string name="take_as_base">作为基础点</string>
+    <string name="take_as_base">添加控制点</string>
 
     <string name="state_connected">状态：已连接</string>
 
@@ -26,4 +26,6 @@
     <string name="disconnecting">正在断开...</string>
 
     <string name="dev_conn_number">设备连接数量：</string>
+    <string name="collect_start">开始采集</string>
+    <string name="collect_end">结束采集</string>
 </resources>

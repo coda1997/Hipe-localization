@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -12,15 +12,30 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         />
+
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar"
+        android:layout_marginTop="0dp"
+        android:clickable="true"
         mapbox:mapbox_cameraTargetLat="30.469898772404722"
         mapbox:mapbox_cameraTargetLng="114.52626434842746"
         mapbox:mapbox_cameraZoom="18"
-        mapbox:mapbox_styleUrl="mapbox://styles/mapbox/streets-v10" />
+        mapbox:mapbox_styleUrl="mapbox://styles/mapbox/streets-v10"
+        android:focusable="true">
 
 
+    </com.mapbox.mapboxsdk.maps.MapView>
+    <Button
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="@string/collect_start"
+        android:id="@+id/collect_start"
+        ></Button>
 
-</LinearLayout>
+
+</RelativeLayout>
