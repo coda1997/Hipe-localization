@@ -1,5 +1,6 @@
 package com.example.overl.hipe.ui
 
+import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.support.v7.widget.Toolbar
 import android.util.Log
@@ -8,11 +9,10 @@ import android.view.View
 import android.widget.Button
 import com.example.overl.hipe.R
 import com.example.overl.hipe.background.WiFi_Scanner_
+import com.example.overl.hipe.background.WifiScanResultSolver
 import com.example.overl.hipe.service.SyncService
 import com.example.overl.hipe.service.getSyncService
-import com.example.overl.hipe.util.Data
-import com.example.overl.hipe.util.OriginalRes
-import com.example.overl.hipe.util.Point
+import com.example.overl.hipe.util.*
 import com.mapbox.mapboxsdk.annotations.IconFactory
 import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
@@ -25,16 +25,16 @@ import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.util.*
 
-class MainActivity : BaseActivity(), WiFi_Scanner_.ScannerListener {
-    private var round: Int = 0
-    override fun onScan(list: ArrayList<OriginalRes>?) {
-
-//        if (round!=0){
-//            pointNum++
-//            wifiScanner.stop()
-//            recordPoint(pointNum)
-//        }
+class MainActivity : BaseActivity(),WifiScanResultSolver {
+    override fun scanSuccess(wifiManager: WifiManager) {
+        val res = wifiManager.scanResults
+        res.forEach { it }
     }
+
+    override fun scanFailure(wifiManager: WifiManager) {
+        toast("扫描失败")
+    }
+
     private var isStoped = true
     private var pointNum = 0
     private fun recordPoint(num:Int){
@@ -61,52 +61,9 @@ class MainActivity : BaseActivity(), WiFi_Scanner_.ScannerListener {
 
 
     private var systime = MyActivity.Sys_t0
-    override fun onScanFinished(point: Point?) {
-//        if (round == 0) {
-////            runOnUiThread {
-////                toast("采集取消")
-////            }
-//            return
-//        }
-//        round = 0
-//        if (point != null) {
-//            CompositeDisposable().add(
-//                    service.getPoints(timestamp + 1, currentFloor).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { t1: Data?, t2: Throwable? ->
-//                        t1?.data?.points?.forEach {
-//                            mapboxMap?.addMarker(MarkerOptions().position(LatLng(it.latitude, it.longitude)).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_green_upload)))
-//                            pointsUploaded.add(it)
-//                        }
-//                        t2?.printStackTrace()
-//                    }
-//            )
-//            CompositeDisposable().add(service.addPoint(point)
-//                    .subscribeOn(Schedulers.io())
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribe { body: Data?, ex: Throwable? ->
-//                        if (body != null && body.code == 200) {
-//                            toast("上传成功")
-//                            getMarkerByPoint(point)?.apply {
-//                                icon = IconFactory.getInstance(this@MainActivity).fromResource(R.mipmap.edit_maker_green_upload)
-//                                mapboxMap?.updateMarker(this)
-//                                preMarker = null
-//                            }
-//                            pointsUploaded.add(point)
-//                        } else {
-//                            toast("上传失败")
-//                        }
-//                        ex?.printStackTrace()
-//                    })
-//            if (!isStoped){
-//                startScan()
-//            }
-//        }
-    }
 
-    private var timestamp: Long = 0L
-    private val pointsUploaded = mutableListOf<Point>()
     private var currentMarker: Marker? = null
     private var currentFloor = 1
-    private lateinit var wifiScanner: WiFi_Scanner_
     private lateinit var service: SyncService
 
 
@@ -116,10 +73,7 @@ class MainActivity : BaseActivity(), WiFi_Scanner_.ScannerListener {
         initMenu()
         initMapView()
         service = getSyncService()
-        wifiScanner = WiFi_Scanner_(applicationContext).apply {
-            setScannerListener(this@MainActivity)
-            setBuildingFloor("shilintong", currentFloor)
-        }
+
     }
 
     private fun initMenu() {
@@ -158,7 +112,6 @@ class MainActivity : BaseActivity(), WiFi_Scanner_.ScannerListener {
         private fun initMapView() {
             mapView?.getMapAsync { mapboxMap ->
                 this.mapboxMap = mapboxMap
-//                mapboxMap.addOnMapLongClickListener(this)
                 loadLocalMapResource()
                 //init mapbox window adapter
                 initWindowAdapter()
@@ -195,29 +148,7 @@ class MainActivity : BaseActivity(), WiFi_Scanner_.ScannerListener {
 
 
         private fun drawPoints(floor: Int) {
-            val list = doAsyncResult {
-                wifiScanner.setBuildingFloor("shilintong", floor)
-                wifiScanner.localPoints
-            }.get()
-            list.forEach {
-                pointsUploaded.add(it)
 
-                mapboxMap?.addMarker(MarkerOptions().position(LatLng(it.latitude, it.longitude)).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_green_upload)))
-            }
-            timestamp = list.maxBy { it.id }?.id ?: timestamp
-            CompositeDisposable().add(
-                    service.getPoints(timestamp + 1, floor).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { t1: Data?, t2: Throwable? ->
-                        t1?.data?.points?.forEach { mapboxMap?.addMarker(MarkerOptions().position(LatLng(it.latitude, it.longitude)).icon(IconFactory.getInstance(this).fromResource(R.mipmap.edit_maker_green_upload))) }
-                        t1?.data?.points?.apply { pointsUploaded.addAll(this) }?.forEach {
-                            val f = wifiScanner.savePointInLocalStorage(it)
-                            Log.e("save point", "$f")
-                        }
-                        if (t2 == null) {
-                            toast("同步成功")
-                        }
-                        t2?.printStackTrace()
-                    }
-            )
 
         }
 
@@ -260,7 +191,7 @@ class MainActivity : BaseActivity(), WiFi_Scanner_.ScannerListener {
         private fun startScan(){
             fetchCoord()
             isStoped=false
-            wifiScanner.startScan(currentCoord.longitude,currentCoord.latitude,5)
+//            wifiScanner.startScan(currentCoord.longitude,currentCoord.latitude,5)
         }
 
     }

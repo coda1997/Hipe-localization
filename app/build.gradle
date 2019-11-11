@@ -55,7 +55,9 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'org.altbeacon:android-beacon-library:2.13.1@aar'
     implementation 'com.android.support:design:27.1.1'
-    dependencies {
-        implementation "org.jetbrains.anko:anko:$anko_version"
-    }
+
+    implementation "org.jetbrains.anko:anko:$anko_version"
+    implementation 'uk.co.alt236:bluetooth-le-library-android:1.0.0'
+
+
 }
