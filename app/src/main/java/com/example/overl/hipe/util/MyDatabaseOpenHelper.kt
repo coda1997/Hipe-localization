@@ -29,3 +29,4 @@ class MyDatabaseOpenHelper private constructor(ctx: Context) : ManagedSQLiteOpen
 
 val Context.database: MyDatabaseOpenHelper
     get() = MyDatabaseOpenHelper.getInstance(this)
+

@@ -1,14 +1,14 @@
 package com.example.overl.hipe.ui
 
+import android.bluetooth.BluetoothManager
+import android.content.Context
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.support.v7.widget.Toolbar
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import com.example.overl.hipe.R
-import com.example.overl.hipe.background.WiFi_Scanner_
 import com.example.overl.hipe.background.WifiScanResultSolver
 import com.example.overl.hipe.service.SyncService
 import com.example.overl.hipe.service.getSyncService
@@ -18,14 +18,16 @@ import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
+import com.vincentmasselis.rxbluetoothkotlin.rxScan
+
 import org.jetbrains.anko.*
+import org.jetbrains.anko.db.insert
+import org.jetbrains.anko.db.select
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.util.*
+import kotlin.math.abs
 
-class MainActivity : BaseActivity(),WifiScanResultSolver {
+class MainActivity : BaseActivity(), WifiScanResultSolver {
     override fun scanSuccess(wifiManager: WifiManager) {
         val res = wifiManager.scanResults
         res.forEach { it }
@@ -37,16 +39,20 @@ class MainActivity : BaseActivity(),WifiScanResultSolver {
 
     private var isStoped = true
     private var pointNum = 0
-    private fun recordPoint(num:Int){
-        val tClick = (System.currentTimeMillis()-systime)/1000.0
-        val landmark = String.format("%.1f",tClick)
+    private val buildingName = "shilintong"
+    private var bid = 0
+    lateinit var bluetoothManager: BluetoothManager
+
+    private fun recordPoint(num: Int) {
+        val tClick = (System.currentTimeMillis() - systime) / 1000.0
+        val landmark = String.format("%.1f", tClick)
         val strLandmark = "$num $landmark+ \n".toByteArray()
 
         val bytes = ByteArray(2).apply {
-            this[0]='s'.toByte()
-            this[1]=num.toByte()
+            this[0] = 's'.toByte()
+            this[1] = num.toByte()
         }
-        for (address in MyActivity.connectaddresses){
+        for (address in MyActivity.connectaddresses) {
             val gatt = MyActivity.mBleService.connectedBluetoothGatt[address]
             val characteristic =
                     gatt?.getService(UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e"))
@@ -56,8 +62,6 @@ class MainActivity : BaseActivity(),WifiScanResultSolver {
         }
 
     }
-
-
 
 
     private var systime = MyActivity.Sys_t0
@@ -70,6 +74,7 @@ class MainActivity : BaseActivity(),WifiScanResultSolver {
     private var mapboxMap: MapboxMap? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         initMenu()
         initMapView()
         service = getSyncService()
@@ -94,8 +99,6 @@ class MainActivity : BaseActivity(),WifiScanResultSolver {
     }
 
 
-
-
     private fun changeFloorMap(floor: Int) {
         if (floor != currentFloor) {
             mapboxMap?.clear()
@@ -104,94 +107,123 @@ class MainActivity : BaseActivity(),WifiScanResultSolver {
             utils.filePath = "shilintong/MapData$floor.txt"
             utils.execute()
             drawPoints(floor)
+            bid = getBid()
             currentFloor = floor
         }
     }
 
-        //init map view without load local points
-        private fun initMapView() {
-            mapView?.getMapAsync { mapboxMap ->
-                this.mapboxMap = mapboxMap
-                loadLocalMapResource()
-                //init mapbox window adapter
-                initWindowAdapter()
-                drawPoints(currentFloor)
+    //init map view without load local points
+    private fun initMapView() {
+        mapView?.getMapAsync { mapboxMap ->
+            this.mapboxMap = mapboxMap
+            loadLocalMapResource()
+            //init mapbox window adapter
+            initWindowAdapter()
+            drawPoints(currentFloor)
 
+        }
+
+    }
+
+    private fun initWindowAdapter() {
+        mapboxMap?.setInfoWindowAdapter { marker ->
+            val v = View.inflate(this, R.layout.base_point_maker_window_info, null)
+            val basePointBt = v.find<Button>(R.id.bt_decide)
+            basePointBt.onClick {
+                //activate coord function
+                baseCoord = LatLng(marker.position.latitude, marker.position.longitude)
+                pointNum = 0
+                offsetF[0] = MyActivity.coords[0]
+                offsetF[1] = MyActivity.coords[1]
+                toast("已选取基准点")
+                isStoped = true
             }
 
+            v
         }
 
-        private fun initWindowAdapter() {
-            mapboxMap?.setInfoWindowAdapter { marker ->
-                val v = View.inflate(this, R.layout.base_point_maker_window_info, null)
-                val basePointBt = v.find<Button>(R.id.bt_decide)
-                basePointBt.onClick {
-                    //activate coord function
-                    baseCoord = LatLng(marker.position.latitude, marker.position.longitude)
-                    pointNum=0
-                    offsetF[0] = MyActivity.coords[0]
-                    offsetF[1] = MyActivity.coords[1]
-                    toast("已选取基准点")
-                    isStoped=true
-                }
+    }
 
-                v
-            }
-
-        }
-
-        private fun loadLocalMapResource() {
-            val utils = GeoJsonUtils(this@MainActivity, mapboxMap!!)
-            utils.filePath = "shilintong/MapData${currentFloor}.txt"
-            utils.execute()
-        }
+    private fun loadLocalMapResource() {
+        val utils = GeoJsonUtils(this@MainActivity, mapboxMap!!)
+        utils.filePath = "shilintong/MapData${currentFloor}.txt"
+        utils.execute()
+    }
 
 
-        private fun drawPoints(floor: Int) {
+    private fun drawPoints(floor: Int) {
 
 
-        }
+    }
 
-        /*
-        * 添加一个当前位置的全局变量，可以通过校正点来校正
-        *
-        * */
-        private lateinit var baseCoord: LatLng
-        private var offsetF = FloatArray(2)
-        private var currentCoord: LatLng = LatLng(0.0, 0.0)
-        private var preMarker: Marker? = null
-        private fun fetchCoord() {
-            var lat = baseCoord.latitude
-            var lng = baseCoord.longitude
-            val offset = MyActivity.coords
-            offset[0] -= offsetF[0]
-            offset[1] -= offsetF[1]
-            lat += offset[0] * 0.00000899
-            lng += offset[1] * 0.00001141// 换算系数
+    /*
+    * 添加一个当前位置的全局变量，可以通过校正点来校正
+    *
+    * */
+    private lateinit var baseCoord: LatLng
+    private var offsetF = FloatArray(2)
+    private var currentCoord: LatLng = LatLng(0.0, 0.0)
+    private var preMarker: Marker? = null
+    private fun fetchCoord() {
+        var lat = baseCoord.latitude
+        var lng = baseCoord.longitude
+        val offset = MyActivity.coords
+        offset[0] -= offsetF[0]
+        offset[1] -= offsetF[1]
+        lat += offset[0] * 0.00000899
+        lng += offset[1] * 0.00001141// 换算系数
 //            val latString = "lat:$lat"
 //            tv_lat.text = latString
 //            val lngString = "lng:${lng}"
 //            tv_lng.text = lngString
 
-            currentCoord.latitude = lat
-            currentCoord.longitude = lng
+        currentCoord.latitude = lat
+        currentCoord.longitude = lng
 //        preMarker?.apply {
 //            mapboxMap?.removeMarker(this)
 //        }
-            runOnUiThread {
-                preMarker = mapboxMap?.addMarker(MarkerOptions().position(currentCoord).icon(IconFactory.getInstance(this).fromResource(R.drawable.ic_person_pin_circle_green_500_24dp)))
-            }
-
-        }
-
-
-        private fun getMarkerByPoint(point: Point): Marker? {
-            return mapboxMap?.markers?.filter { it.position.latitude == point.latitude && it.position.longitude == point.longitude }?.get(0)
-        }
-        private fun startScan(){
-            fetchCoord()
-            isStoped=false
-//            wifiScanner.startScan(currentCoord.longitude,currentCoord.latitude,5)
+        runOnUiThread {
+            preMarker = mapboxMap?.addMarker(MarkerOptions().position(currentCoord).icon(IconFactory.getInstance(this).fromResource(R.drawable.ic_person_pin_circle_green_500_24dp)))
         }
 
     }
+
+
+    private fun getMarkerByPoint(point: Point): Marker? {
+        return mapboxMap?.markers?.filter { it.position.latitude == point.latitude && it.position.longitude == point.longitude }?.get(0)
+    }
+
+    private fun startScan() {
+        fetchCoord()
+        isStoped = false
+        bluetoothManager.rxScan().subscribe {
+            it.device.address
+            abs(it.rssi)
+        }
+
+    }
+
+    private fun instertBuilding(buildingName: String, floor: Int) {
+        database.use {
+            insert("building",
+                    "buildingname" to buildingName,
+                    "floor" to floor.toString())
+        }
+    }
+
+    private fun getBid():Int =
+        database.use {
+            select("building")
+                    .whereArgs("(buildingname = {bname}) and (floor = {fl})", "bname" to buildingName, "fl" to currentFloor)
+                    .exec {
+                        if (count == 0) {
+                            instertBuilding(buildingName, currentFloor)
+                            getBid()
+                        }else{
+                            this.getInt(0)
+                        }
+                    }
+        }
+
+
+}
